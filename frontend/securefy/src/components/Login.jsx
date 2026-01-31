@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import "./Auth.css";
 import { toast } from "react-toastify";
+import logo from "../assets/Seecurefy logo.jpg";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -28,7 +29,9 @@ export default function Login() {
       <div className="auth-wrap">
         <div className="auth-card glow">
           <div className="auth-header">
-            <div className="auth-logo">S</div>
+            <div className="auth-logo">
+              <img src={logo} alt="Securefy Logo"></>
+            </div>
             <h2>Login</h2>
             <p>Access your Smart Locker dashboard</p>
           </div>
