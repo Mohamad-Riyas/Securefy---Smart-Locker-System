@@ -30,7 +30,7 @@ export default function Login() {
         <div className="auth-card glow">
           <div className="auth-header">
             <div className="auth-logo">
-              <img src={logo} alt="Securefy Logo"></>
+              <img src={logo} alt="Securefy Logo" />
             </div>
             <h2>Login</h2>
             <p>Access your Smart Locker dashboard</p>
