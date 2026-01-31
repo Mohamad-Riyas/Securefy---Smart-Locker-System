@@ -1,86 +1,93 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
-import { Link, useNavigate } from "react-router-dom";
+import "./Auth.css";
+import { toast } from "react-toastify";
 
-function Register() {
-    const [fname, setName] = useState("");
-    const [lname, setLname] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+export default function Register() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
-
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        try {
-          await createUserWithEmailAndPassword(auth, email, password);
-          const user = auth.currentUser;
-          console.log("Registered user:", user);
-          console.log("User Registered Succecssfully");
-
-          navigate("/login");
-        } catch (error) {
-          console.log("Registration error:", error);
-        }
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      toast.success("Account created!");
+      navigate("/login");
+    } catch (err) {
+      toast.error(err.message);
     }
+  };
 
-    return (
-      <form onSubmit={handleRegister}>
-        <h3>Register</h3>
+  return (
+    <div className="auth-bg">
+      <div className="auth-noise" />
 
-        <div className="mb-3">
-          <label>First Name</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter First Name"
-            onChange={(e) => setName(e.target.value)}
-            />
+      <div className="auth-wrap">
+        <div className="auth-card glow">
+          <div className="auth-header">
+            <div className="auth-logo">S</div>
+            <h2>Register</h2>
+            <p>Create your Smart Locker account</p>
+          </div>
+
+          <form onSubmit={handleRegister} className="auth-form">
+            <label className="auth-label">Name</label>
+            <div className="auth-input">
+              <span className="auth-icon">👤</span>
+              <input
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+
+            <label className="auth-label">Email</label>
+            <div className="auth-input">
+              <span className="auth-icon">✉</span>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <label className="auth-label">Password</label>
+            <div className="auth-input">
+              <span className="auth-icon">🔒</span>
+              <input
+                type="password"
+                placeholder="Create a strong password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+            </div>
+
+            <button className="auth-btn" type="submit">
+              Create Account
+              <span className="auth-btn-glow" />
+            </button>
+
+            <div className="auth-footer">
+              <span>Already have an account?</span>
+              <Link to="/login" className="auth-link">
+                Login
+              </Link>
+            </div>
+          </form>
+
+          <div className="auth-bottom-glow" />
         </div>
-
-        <div className="mb-3">
-          <label>Last Name</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter Last Name"
-            onChange={(e) => setLname(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label>Email address</label>
-          <input
-            type="email"
-            className="form-control"
-            placeholder="Enter email"
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label>Password</label>
-          <input
-            type="password"
-            className="form-control"
-            placeholder="Enter password"
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="d-grid">
-          <button type="submit" className="btn btn-primary">
-            Submit
-          </button>
-        </div>
-        <p className="text-center mt-3">
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
-      </form>
-    );
+      </div>
+    </div>
+  );
 }
-
-export default Register;
