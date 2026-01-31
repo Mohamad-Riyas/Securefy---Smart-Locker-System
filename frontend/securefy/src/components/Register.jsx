@@ -4,6 +4,8 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import "./Auth.css";
 import { toast } from "react-toastify";
+import logo from "../assets/Seecurefy logo.jpg";
+
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -29,7 +31,9 @@ export default function Register() {
       <div className="auth-wrap">
         <div className="auth-card glow">
           <div className="auth-header">
-            <div className="auth-logo">S</div>
+            <div className="auth-logo">
+              <img src={logo} alt="Securefy Logo"></>
+            </div>
             <h2>Register</h2>
             <p>Create your Smart Locker account</p>
           </div>
