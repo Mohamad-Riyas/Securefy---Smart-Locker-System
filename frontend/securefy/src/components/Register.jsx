@@ -32,7 +32,7 @@ export default function Register() {
         <div className="auth-card glow">
           <div className="auth-header">
             <div className="auth-logo">
-              <img src={logo} alt="Securefy Logo"></>
+              <img src={logo} alt="Securefy Logo" />
             </div>
             <h2>Register</h2>
             <p>Create your Smart Locker account</p>
