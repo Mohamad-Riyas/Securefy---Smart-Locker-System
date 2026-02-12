@@ -213,8 +213,8 @@ export default function Availability() {
                       opacity="0.3"
                     />
                     <circle
-                      cx="20"
-                      cy="30"
+                      cx="30"
+                      cy="40"
                       r="3"
                       fill="currentColor"
                     />
