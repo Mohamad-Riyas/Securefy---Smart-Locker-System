@@ -5,6 +5,9 @@ import "./App.css";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Home from "./pages/Home";
+import BookLocker from "./pages/BookLocker";       // ADDED
+import Availability from "./pages/Availability";   // ADDED
+import MyQRCode from "./pages/MyQRCode";          // ADDED
 import Navbar from "./components/Navbar/Navbar";
 
 import { ToastContainer } from "react-toastify";
@@ -23,6 +26,11 @@ function App() {
         {/* Auth Pages */}
         <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
         <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
+
+        {/* Locker Pages - ADDED THESE THREE ROUTES */}
+        <Route path="/book-locker" element={<BookLocker />} />
+        <Route path="/availability" element={<Availability />} />
+        <Route path="/my-qr-code" element={<MyQRCode />} />
       </Routes>
 
       <ToastContainer />

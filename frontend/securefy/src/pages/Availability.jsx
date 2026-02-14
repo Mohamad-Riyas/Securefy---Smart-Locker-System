@@ -1,86 +1,98 @@
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
+import { FaLock, FaLockOpen, FaCircle, FaSync, FaChartBar } from "react-icons/fa";
 import "./Availability.css";
-import { FaSearch } from "react-icons/fa";
 
 export default function Availability() {
   const [lockers, setLockers] = useState([]);
+  const [stats, setStats] = useState({
+    available: 0,
+    reserved: 0,
+    occupied: 0,
+    total: 0
+  });
+  const [filterLocation, setFilterLocation] = useState("all");
+  const [filterSize, setFilterSize] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [sizeFilter, setSizeFilter] = useState("all");
+  const [lastUpdate, setLastUpdate] = useState(new Date());
 
-  // Real-time listener for lockers
   useEffect(() => {
-    const q = query(collection(db, "lockers"), orderBy("lockerId"));
-    
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const lockersData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setLockers(lockersData);
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching lockers:", error);
-      setLoading(false);
-    });
+    // Real-time listener for lockers
+    const unsubscribe = onSnapshot(
+      collection(db, "lockers"),
+      (snapshot) => {
+        const lockerList = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        setLockers(lockerList);
+        calculateStats(lockerList);
+        setLastUpdate(new Date());
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching lockers:", error);
+        setLoading(false);
+      }
+    );
 
     return () => unsubscribe();
   }, []);
 
-  // Calculate status counts
-  const statusCounts = {
-    available: lockers.filter(l => l.status === "available").length,
-    inUse: lockers.filter(l => l.status === "occupied").length,
-    reserved: lockers.filter(l => l.status === "reserved").length,
+  const calculateStats = (lockerList) => {
+    const stats = {
+      available: lockerList.filter(l => l.status === "available").length,
+      reserved: lockerList.filter(l => l.status === "reserved").length,
+      occupied: lockerList.filter(l => l.status === "occupied").length,
+      total: lockerList.length
+    };
+    setStats(stats);
   };
 
-  // Filter lockers based on search and filters
-  const filteredLockers = lockers.filter(locker => {
-    const matchesSearch = locker.lockerId?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || locker.status === statusFilter;
-    const matchesSize = sizeFilter === "all" || locker.size === sizeFilter;
-    return matchesSearch && matchesStatus && matchesSize;
-  });
-
-  // Get status color class
   const getStatusColor = (status) => {
     switch (status) {
-      case "available":
-        return "available";
-      case "reserved":
-        return "reserved";
-      case "occupied":
-        return "in-use";
-      case "maintenance":
-        return "maintenance";
-      default:
-        return "available";
+      case "available": return "#28a745";
+      case "reserved": return "#ffc107";
+      case "occupied": return "#dc3545";
+      default: return "#6c757d";
     }
   };
 
-  // Get status display text
-  const getStatusText = (status) => {
+  const getStatusIcon = (status) => {
+    return status === "available" ? <FaLockOpen /> : <FaLock />;
+  };
+
+  const getStatusEmoji = (status) => {
     switch (status) {
-      case "available":
-        return "Available";
-      case "reserved":
-        return "Reserved";
-      case "occupied":
-        return "In Use";
-      case "maintenance":
-        return "Maintenance";
-      default:
-        return status;
+      case "available": return "✅";
+      case "reserved": return "⏳";
+      case "occupied": return "🔒";
+      default: return "❓";
     }
+  };
+
+  // Apply all filters
+  const filteredLockers = lockers.filter(locker => {
+    const locationMatch = filterLocation === "all" || locker.location.includes(filterLocation);
+    const sizeMatch = filterSize === "all" || locker.size === filterSize;
+    const statusMatch = filterStatus === "all" || locker.status === filterStatus;
+    
+    return locationMatch && sizeMatch && statusMatch;
+  });
+
+  const getCapacityPercentage = () => {
+    if (stats.total === 0) return 0;
+    return Math.round((stats.available / stats.total) * 100);
   };
 
   if (loading) {
     return (
-      <div className="availability-container">
-        <div className="loading-spinner">Loading lockers...</div>
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p>Loading locker availability...</p>
       </div>
     );
   }
@@ -88,146 +100,182 @@ export default function Availability() {
   return (
     <div className="availability-container">
       <div className="availability-header">
-        <h1>Real-Time Availability</h1>
-        <p className="subtitle">Check the current status of all lockers in the library</p>
+        <h1>🔍 Locker Availability</h1>
+        <p>Real-time status of all lockers</p>
+        <div className="last-update">
+          <FaSync className="sync-icon" />
+          Last updated: {lastUpdate.toLocaleTimeString()}
+        </div>
       </div>
 
-      {/* Status Summary Cards */}
-      <div className="status-summary">
-        <div className="status-card available-card">
-          <div className="status-header">
-            <span className="status-label">Available</span>
-            <span className="status-dot available-dot"></span>
+      {/* Statistics Dashboard */}
+      <div className="stats-dashboard">
+        <div className="stat-card available">
+          <div className="stat-icon">✅</div>
+          <div className="stat-content">
+            <h3>{stats.available}</h3>
+            <p>Available</p>
           </div>
-          <div className="status-count">{statusCounts.available} lockers</div>
+          <div className="stat-percentage">
+            {Math.round((stats.available / stats.total) * 100)}%
+          </div>
         </div>
 
-        <div className="status-card in-use-card">
-          <div className="status-header">
-            <span className="status-label">In Use</span>
-            <span className="status-dot in-use-dot"></span>
+        <div className="stat-card reserved">
+          <div className="stat-icon">⏳</div>
+          <div className="stat-content">
+            <h3>{stats.reserved}</h3>
+            <p>Reserved</p>
           </div>
-          <div className="status-count">{statusCounts.inUse} lockers</div>
+          <div className="stat-percentage">
+            {Math.round((stats.reserved / stats.total) * 100)}%
+          </div>
         </div>
 
-        <div className="status-card reserved-card">
-          <div className="status-header">
-            <span className="status-label">Reserved</span>
-            <span className="status-dot reserved-dot"></span>
+        <div className="stat-card occupied">
+          <div className="stat-icon">🔒</div>
+          <div className="stat-content">
+            <h3>{stats.occupied}</h3>
+            <p>Occupied</p>
           </div>
-          <div className="status-count">{statusCounts.reserved} lockers</div>
+          <div className="stat-percentage">
+            {Math.round((stats.occupied / stats.total) * 100)}%
+          </div>
+        </div>
+
+        <div className="stat-card total">
+          <div className="stat-icon"><FaChartBar /></div>
+          <div className="stat-content">
+            <h3>{stats.total}</h3>
+            <p>Total Lockers</p>
+          </div>
+          <div className="capacity-bar">
+            <div 
+              className="capacity-fill" 
+              style={{ 
+                width: `${getCapacityPercentage()}%`,
+                background: getCapacityPercentage() > 50 ? '#28a745' : 
+                            getCapacityPercentage() > 25 ? '#ffc107' : '#dc3545'
+              }}
+            ></div>
+          </div>
         </div>
       </div>
 
       {/* Filters Section */}
-      <div className="filters-section">
+      <div className="filters-bar">
         <div className="filter-group">
-          <label>Search Locker</label>
-          <div className="search-input-wrapper">
-            <FaSearch className="search-icon" />
-            <input
-              type="text"
-              placeholder="e.g., L001"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-        </div>
-
-        <div className="filter-group">
-          <label>Status Filter</label>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="filter-select"
-          >
-            <option value="all">All Status</option>
-            <option value="available">Available</option>
-            <option value="reserved">Reserved</option>
-            <option value="occupied">In Use</option>
-            <option value="maintenance">Maintenance</option>
+          <label>📍 Location:</label>
+          <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)}>
+            <option value="all">All Locations</option>
+            <option value="Floor 1">Floor 1</option>
+            <option value="Floor 2">Floor 2</option>
+            <option value="Floor 3">Floor 3</option>
           </select>
         </div>
 
         <div className="filter-group">
-          <label>Size Filter</label>
-          <select
-            value={sizeFilter}
-            onChange={(e) => setSizeFilter(e.target.value)}
-            className="filter-select"
-          >
+          <label>📦 Size:</label>
+          <select value={filterSize} onChange={(e) => setFilterSize(e.target.value)}>
             <option value="all">All Sizes</option>
             <option value="small">Small</option>
             <option value="medium">Medium</option>
             <option value="large">Large</option>
           </select>
         </div>
+
+        <div className="filter-group">
+          <label>🔐 Status:</label>
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+            <option value="all">All Status</option>
+            <option value="available">Available</option>
+            <option value="reserved">Reserved</option>
+            <option value="occupied">Occupied</option>
+          </select>
+        </div>
+
+        <div className="filter-results">
+          Showing <strong>{filteredLockers.length}</strong> of {stats.total} lockers
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div className="legend">
+        <div className="legend-item">
+          <FaCircle color="#28a745" /> <span>Available - Ready to book</span>
+        </div>
+        <div className="legend-item">
+          <FaCircle color="#ffc107" /> <span>Reserved - Booking in progress</span>
+        </div>
+        <div className="legend-item">
+          <FaCircle color="#dc3545" /> <span>Occupied - Currently in use</span>
+        </div>
       </div>
 
       {/* Lockers Grid */}
-      <div className="lockers-section">
-        <div className="lockers-header">
-          <h2>All Lockers</h2>
-          <div className="live-indicator">
-            <span className="live-dot"></span>
-            <span>Live Updates</span>
+      {filteredLockers.length === 0 ? (
+        <div className="no-results">
+          <h3>No Lockers Found</h3>
+          <p>Try changing your filter criteria</p>
+        </div>
+      ) : (
+        <div className="lockers-availability-grid">
+          {filteredLockers.map((locker) => (
+            <div
+              key={locker.id}
+              className={`availability-card ${locker.status}`}
+              style={{ borderColor: getStatusColor(locker.status) }}
+            >
+              <div className="card-header">
+                <span className="status-emoji">{getStatusEmoji(locker.status)}</span>
+                <div className="card-icon" style={{ color: getStatusColor(locker.status) }}>
+                  {getStatusIcon(locker.status)}
+                </div>
+              </div>
+              
+              <h3>{locker.lockerNumber}</h3>
+              
+              <div className="card-details">
+                <p className="location">{locker.location}</p>
+                <p className="size-info">
+                  <span className={`size-badge ${locker.size}`}>
+                    {locker.size.toUpperCase()}
+                  </span>
+                </p>
+              </div>
+              
+              <div className="status-footer">
+                <span className={`status-badge ${locker.status}`}>
+                  {locker.status.toUpperCase()}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Quick Stats Summary */}
+      <div className="summary-section">
+        <h3>📊 Capacity Overview</h3>
+        <div className="capacity-overview">
+          <div className="capacity-item">
+            <div className="capacity-label">Current Capacity</div>
+            <div className="capacity-value">{getCapacityPercentage()}% Available</div>
+            <div className="capacity-bar-large">
+              <div 
+                className="capacity-bar-fill"
+                style={{ 
+                  width: `${getCapacityPercentage()}%`,
+                  background: getCapacityPercentage() > 50 ? 
+                    'linear-gradient(90deg, #28a745, #20c997)' : 
+                    getCapacityPercentage() > 25 ? 
+                    'linear-gradient(90deg, #ffc107, #ff9800)' : 
+                    'linear-gradient(90deg, #dc3545, #c82333)'
+                }}
+              ></div>
+            </div>
           </div>
         </div>
-
-        {filteredLockers.length === 0 ? (
-          <div className="no-results">
-            <p>No lockers found matching your criteria</p>
-          </div>
-        ) : (
-          <div className="lockers-grid">
-            {filteredLockers.map((locker) => (
-              <div
-                key={locker.id}
-                className={`locker-item ${getStatusColor(locker.status)}`}
-              >
-                <div className="locker-icon">
-                  <svg
-                    width="40"
-                    height="60"
-                    viewBox="0 0 40 60"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <rect
-                      x="2"
-                      y="2"
-                      width="36"
-                      height="56"
-                      rx="4"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                    <rect
-                      x="10"
-                      y="10"
-                      width="20"
-                      height="8"
-                      rx="2"
-                      fill="currentColor"
-                      opacity="0.3"
-                    />
-                    <circle
-                      cx="20"
-                      cy="30"
-                      r="3"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </div>
-                <div className="locker-id">{locker.lockerId}</div>
-                {locker.size && (
-                  <div className="locker-size">{locker.size}</div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
