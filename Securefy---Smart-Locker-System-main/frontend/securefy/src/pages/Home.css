@@ -17,7 +17,7 @@
 
 .home-orb {
     position: absolute;
-    border-radius: 50%;
+    border-radius: 60%;
     filter: blur(100px);
     opacity: 0.4;
     animation: floatOrb 25s ease-in-out infinite;
