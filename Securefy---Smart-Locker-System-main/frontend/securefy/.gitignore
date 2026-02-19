@@ -1,0 +1,14 @@
+# Node / React / Vite
+node_modules/
+dist/
+build/
+.vite/
+*.log
+
+# Env files
+.env
+.env.local
+
+# OS / editor
+.DS_Store
+.vscode/
