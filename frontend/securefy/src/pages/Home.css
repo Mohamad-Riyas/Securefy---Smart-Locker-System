@@ -19,7 +19,7 @@
     position: absolute;
     border-radius: 50%;
     filter: blur(100px);
-    opacity: 0.4;
+    opacity: 0.5;
     animation: floatOrb 25s ease-in-out infinite;
 }
 
