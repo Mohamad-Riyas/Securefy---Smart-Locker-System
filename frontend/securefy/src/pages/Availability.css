@@ -508,7 +508,11 @@
 
   .legend {
     flex-direction: column;
+<<<<<<< HEAD
     gap: 15px;
+=======
+    gap: 20px;
+>>>>>>> 27307c9ae8e7fd89759f9433196d1d511b1b3af0
   }
 
   .lockers-availability-grid {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .navbar{
     width: 100%;
     display: flex;
@@ -23,4 +24,31 @@ ul li{
     margin: 10px 20px;
     font-size: 18px;
     cursor: pointer;
+=======
+.navbar{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 15px 7%;
+}
+
+.logo{
+    width: 50px;
+    cursor: pointer;
+}
+
+ul{
+    flex: 1;
+    list-style: none;
+    text-align: center;
+}
+
+ul li{
+    display: inline-block;
+    margin: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+>>>>>>> 27307c9ae8e7fd89759f9433196d1d511b1b3af0
 }
