@@ -8,7 +8,7 @@ import {
   FaUsers,
   FaSignOutAlt
 } from 'react-icons/fa';
-import logo from '../../assets/securefy-logo.jpg'; // Make sure file name is correct
+import logo from '../../assets/securefy logo.jpg'; // Make sure file name is correct
 import './AdminStyles.css';
 
 export default function AdminLayout() {
@@ -99,3 +99,4 @@ export default function AdminLayout() {
     </div>
   );
 }
+
