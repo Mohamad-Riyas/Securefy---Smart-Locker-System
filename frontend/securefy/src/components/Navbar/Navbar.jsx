@@ -32,9 +32,15 @@ const Navibar = () => {
             </div>
 
 
-            <img src={logo} alt="Securefy Logo" className="logo" /> 
-            
-            <h1>Securefy</h1>
+             <div className={`navbar-links-container ${isMobileMenuOpen ? 'active' : ''}`}>
+                <ul className="navbar-links">
+                    <li><Link to="/" onClick={() => setIsMobileMenuOpen(false)}>Home</Link></li>
+                    <li><Link to="/book-locker" onClick={() => setIsMobileMenuOpen(false)}>Book Locker</Link></li>
+                    <li><Link to="/availability" onClick={() => setIsMobileMenuOpen(false)}>Availability</Link></li>
+                    {currentUser && (
+                        <li><Link to="/my-qr-code" onClick={() => setIsMobileMenuOpen(false)}>My QR Code</Link></li>
+                    )}
+                </ul>
 
             <ul>
                 <li><Link to="/">Home</Link></li>
