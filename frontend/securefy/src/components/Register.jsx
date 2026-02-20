@@ -61,16 +61,35 @@ export default function Register() {
               <img src={logo} alt="Securefy Logo" />
             </div>
             <h2>Register</h2>
-            <p>Create your Smart Locker account</p>
+            <p>Create your {role === 'admin' ? 'Admin' : 'Personal'} account</p>
           </div>
 
           <form onSubmit={handleRegister} className="auth-form">
-            <label className="auth-label">Name</label>
+            <div className="role-toggle-container mb-3" style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button
+                type="button"
+                className={`btn ${role === 'user' ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => setRole('user')}
+                style={{ flex: 1 }}
+              >
+                User
+              </button>
+              <button
+                type="button"
+                className={`btn ${role === 'admin' ? 'btn-danger' : 'btn-outline-danger'}`}
+                onClick={() => setRole('admin')}
+                style={{ flex: 1 }}
+              >
+                Admin
+              </button>
+            </div>
+
+            <label className="auth-label">Username</label>
             <div className="auth-input">
               <span className="auth-icon">👤</span>
               <input
                 type="text"
-                placeholder="Your name"
+                placeholder="Enter your username"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -102,8 +121,24 @@ export default function Register() {
               />
             </div>
 
-            <button className="auth-btn" type="submit">
-              Create Account
+            {role === 'admin' && (
+              <>
+                <label className="auth-label" style={{ color: '#ff4444' }}>Admin Secret Key</label>
+                <div className="auth-input" style={{ borderColor: '#ff4444' }}>
+                  <span className="auth-icon">🔑</span>
+                  <input
+                    type="password"
+                    placeholder="Enter Admin Key"
+                    value={adminKey}
+                    onChange={(e) => setAdminKey(e.target.value)}
+                    required
+                  />
+                </div>
+              </>
+            )}
+
+            <button className={`auth-btn ${role === 'admin' ? 'admin-btn' : ''}`} type="submit">
+              Create {role === 'admin' ? 'Admin' : ''} Account
               <span className="auth-btn-glow" />
             </button>
 
