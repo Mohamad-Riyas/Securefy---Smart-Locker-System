@@ -1,12 +1,36 @@
-<<<<<<< HEAD
-import React from "react";
+import React, { useState } from "react";
 import './Navbar.css';
 import logo from '../../assets/Seecurefy logo.jpg';
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { signOut } from "firebase/auth";
+import { auth } from "../../firebase";
+import { FaBars, FaTimes, FaUserCircle } from "react-icons/fa";
 
 const Navibar = () => {
+        const { currentUser, userName } = useAuth();
+    const navigate = useNavigate();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
+            navigate('/login');
+        } catch (error) {
+            console.error("Error signing out: ", error);
+        }
+    };
+    const toggleMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
     return (
-        <div className="navbar">
+         <nav className="navbar-container">
+            <div className="navbar-logo-group">
+                <Link to="/" className="logo-link">
+                    <img src={logo} alt="Securefy Logo" className="navbar-logo" />
+                    <h1 className="navbar-brand">Securefy</h1>
+                </Link>
+            </div>
+
 
             <img src={logo} alt="Securefy Logo" className="logo" /> 
             
