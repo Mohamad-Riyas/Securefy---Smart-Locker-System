@@ -5,21 +5,47 @@ import { auth } from "../firebase";
 import "./Auth.css";
 import { toast } from "react-toastify";
 import logo from "../assets/Seecurefy logo.jpg";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user"); // 'user' or 'admin'
+  const [adminKey, setAdminKey] = useState("");
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    // Simple Admin Key Validation
+    if (role === "admin" && adminKey !== "admin123") {
+      toast.error("Invalid Admin Key!");
+      return;
+    }
+
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      toast.success("Account created!");
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Update Auth Profile
+      await updateProfile(user, { displayName: name });
+
+      // Create user document in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        name: name,
+        email: email,
+        role: role,
+        createdAt: new Date().toISOString()
+      });
+
+      toast.success(`Account created as ${role}! Please login.`);
       navigate("/login");
     } catch (err) {
+      console.error(err);
       toast.error(err.message);
     }
   };
