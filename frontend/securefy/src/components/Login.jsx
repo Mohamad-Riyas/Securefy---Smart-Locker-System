@@ -40,12 +40,30 @@ export default function Login() {
           </div>
 
           <form onSubmit={handleLogin} className="auth-form">
+            <div className="role-toggle-container mb-3" style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button 
+                type="button" 
+                className={`btn ${role === 'user' ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => setRole('user')}
+                style={{ flex: 1 }}
+              >
+                User
+              </button>
+              <button 
+                type="button" 
+                className={`btn ${role === 'admin' ? 'btn-danger' : 'btn-outline-danger'}`}
+                onClick={() => setRole('admin')}
+                style={{ flex: 1 }}
+              >
+                Admin
+              </button>
+            </div>
             <label className="auth-label">Email</label>
             <div className="auth-input">
               <span className="auth-icon">✉</span>
               <input
                 type="email"
-                placeholder="you@example.com"
+                placeholder={role === 'admin' ? "admin@securefy.com" : "you@example.com"}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -64,8 +82,8 @@ export default function Login() {
               />
             </div>
 
-            <button className="auth-btn" type="submit">
-              Login
+            <button className={`auth-btn ${role === 'admin' ? 'admin-btn' : ''}`} type="submit">
+              {role === 'admin' ? 'Admin Login' : 'Login'}
               <span className="auth-btn-glow" />
             </button>
 
