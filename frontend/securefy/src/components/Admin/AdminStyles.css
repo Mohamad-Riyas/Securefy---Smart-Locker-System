@@ -1,228 +1,80 @@
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-/* Dark Theme Variables */
-:root {
-    --bg-dark: #0f172a;
-    /* Deep Slate */
-    --card-dark: #1e293b;
-    /* Lighter Slate */
-    --text-primary: #f8fafc;
-    /* White-ish */
-    --text-secondary: #94a3b8;
-    /* Slate 400 */
-    --accent: #6366f1;
-    /* Indigo 500 */
-    --accent-glow: rgba(99, 102, 241, 0.15);
-    --border-color: #334155;
-    /* Slate 700 */
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-}
-
-/* Admin Layout Styles */
 .admin-container {
-    display: flex;
-    min-height: 100vh;
-    background-color: var(--bg-dark);
-    font-family: 'Inter', sans-serif;
-    color: var(--text-primary);
+  display: flex;
+  min-height: 100vh;
 }
 
 .admin-sidebar {
-    width: 260px;
-    background-color: rgba(30, 41, 59, 0.7);
-    /* translucent card color */
-    backdrop-filter: blur(12px);
-    border-right: 1px solid var(--border-color);
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-}
-
-.admin-content {
-    flex-grow: 1;
-    padding: 32px;
-    overflow-y: auto;
+  width: 250px;
+  background-color: #0f172a;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 }
 
 .sidebar-brand {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 40px;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    letter-spacing: -0.025em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.sidebar-logo {
+  height: 40px;
+  border-radius: 8px;
 }
 
 .sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .sidebar-link {
-    color: var(--text-secondary);
-    text-decoration: none;
-    padding: 12px 16px;
-    border-radius: 12px;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 500;
-    font-size: 0.95rem;
+  color: #cbd5e1;
+  text-decoration: none;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .sidebar-link:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--text-primary);
+  background-color: #1e293b;
+  color: white;
 }
 
 .sidebar-link.active {
-    background-color: var(--accent-glow);
-    color: var(--accent);
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.1);
+  background-color: #2563eb;
+  color: white;
 }
 
-.stat-card-aura {
-    background: var(--card-dark);
-    padding: 24px;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--border-color);
-    height: 100%;
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+.sidebar-bottom {
+  margin-top: auto;
+  border-top: 1px solid #334155;
+  padding-top: 10px;
 }
 
-.stat-card-aura:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
-    border-color: #475569;
+.logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+  
+.admin-content {
+  flex-grow: 1;
+  padding: 30px;
+  background-color: #f1f5f9;
 }
 
-.stat-label {
-    color: var(--text-secondary);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.stat-value {
-    font-size: 2.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-}
-
-.stat-subtext {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-top: 4px;
-}
-
-/* Bento Grid Utilities */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: auto auto;
-    gap: 24px;
-}
-
-.section-header {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.025em;
-    margin-bottom: 24px;
-}
-
-/* Custom List Item Style for Sidebar Feed */
-.feed-item {
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.feed-item:last-child {
-    border-bottom: none;
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    box-shadow: 0 0 5px currentColor;
-}
-
-.dot-green {
-    background-color: var(--success);
-    color: var(--success);
-}
-
-.dot-amber {
-    background-color: var(--warning);
-    color: var(--warning);
-}
-
-.dot-red {
-    background-color: var(--danger);
-    color: var(--danger);
-}
-
-/* Locker Grid Concept */
-.locker-grid-mini {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
-    gap: 8px;
-}
-
-.locker-box {
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 4px;
-    background-color: rgba(255, 255, 255, 0.05);
-    /* slightly lighter slot */
-    border: 1px solid var(--border-color);
-    transition: all 0.2s;
-}
-
-.locker-box.occupied {
-    background-color: var(--accent);
-    border-color: var(--accent);
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
-}
-
-.locker-box.maintenance {
-    background-color: var(--warning);
-    border-color: var(--warning);
-}
-
-/* Scrollbar Customization */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--bg-dark);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+.admin-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
