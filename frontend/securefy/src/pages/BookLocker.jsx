@@ -137,6 +137,7 @@ export default function BookLocker() {
               <option value="Floor 1">Floor 1</option>
               <option value="Floor 2">Floor 2</option>
               <option value="Floor 3">Floor 3</option>
+              <option value="Floor 4">Floor 4</option>
             </select>
           </div>
 
