@@ -42,19 +42,25 @@ const Navibar = () => {
                     )}
                 </ul>
 
-            <ul>
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/book-locker">Book Locker</Link></li>
-                <li><Link to="/availability">Availability</Link></li>
-                <li><Link to="/my-qr-code">My QR Code</Link></li>
-            </ul>
-
-            <div className="btn-sign_in">
-            <button type="sign_in" className="sign_in-btn">
-                <Link to="/login">Sign in </Link>
-            </button>
+             <div className="navbar-auth-actions">
+                    {currentUser ? (
+                        <div className="user-menu">
+                            <span className="user-greeting">
+                                <FaUserCircle />
+                                <span className="username-text">Hello, {userName || 'User'}</span>
+                            </span>
+                            <button onClick={handleSignOut} className="btn-sign-out">Sign Out</button>
+                        </div>
+                    ) : (
+                        <Link to="/login" className="btn-sign-in">Sign In</Link>
+                    )}
+                </div>
             </div>
-        </div>
+
+            <div className="navbar-toggle" onClick={toggleMenu}>
+                {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+            </div>
+        </nav>
     );
 };
 
