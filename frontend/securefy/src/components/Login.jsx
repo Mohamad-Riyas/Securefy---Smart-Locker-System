@@ -9,14 +9,17 @@ import logo from "../assets/Seecurefy logo.jpg";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      toast.success("Login successful!");
-      navigate("/");
+           // We could add a check here against the Firestore user role if we wanted to enforce it strictly
+      // But for now, we just rely on the redirect logic in the protected routes or dashboard
+      toast.success(`Logged in as ${role}!`);
+      navigate(role === 'admin' ? '/admin' : '/');
     } catch (err) {
       toast.error(err.message);
     }
@@ -32,8 +35,8 @@ export default function Login() {
             <div className="auth-logo">
               <img src={logo} alt="Securefy Logo" />
             </div>
-            <h2>Login</h2>
-            <p>Access your Smart Locker dashboard</p>
+           <h2>{role === 'admin' ? 'Admin Login' : 'Login'}</h2>
+            <p>Access your {role === 'admin' ? 'Management Dashboard' : 'Smart Locker dashboard'}</p>
           </div>
 
           <form onSubmit={handleLogin} className="auth-form">
