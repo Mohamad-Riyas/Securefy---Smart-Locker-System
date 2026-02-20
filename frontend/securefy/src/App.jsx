@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 
 import Login from "./components/Login";
@@ -8,6 +8,11 @@ import Home from "./pages/Home";
 import BookLocker from "./pages/BookLocker";       // ADDED
 import Availability from "./pages/Availability";   // ADDED
 import MyQRCode from "./pages/MyQRCode";          // ADDED
+import AdminLayout from "./components/Admin/AdminLayout";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import AdminLockers from "./pages/Admin/AdminLockers";
+import AdminBookings from "./pages/Admin/AdminBookings";
+import AdminUsers from "./pages/Admin/AdminUsers";
 import Navbar from "./components/Navbar/Navbar";
 
 import { ToastContainer } from "react-toastify";
