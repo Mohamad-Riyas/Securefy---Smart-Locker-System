@@ -19,11 +19,14 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
+    const location = useLocation();
   return (
     <>
-    <div className="container">
-      <Navbar />
-    </div>
+{!location.pathname.startsWith('/admin') && (
+        <div className="container">
+          <Navbar />
+        </div>
+      )}    
       <Routes>
         {/* Home Page */}
         <Route path="/" element={<Home />} />
@@ -36,6 +39,14 @@ function App() {
         <Route path="/book-locker" element={<BookLocker />} />
         <Route path="/availability" element={<Availability />} />
         <Route path="/my-qr-code" element={<MyQRCode />} />
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="lockers" element={<AdminLockers />} />
+          <Route path="bookings" element={<AdminBookings />} />
+          <Route path="users" element={<AdminUsers />} />
+        </Route>
+        
       </Routes>
 
       <ToastContainer />
