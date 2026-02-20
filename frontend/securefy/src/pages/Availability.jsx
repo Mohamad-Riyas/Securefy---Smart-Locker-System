@@ -1,282 +1,414 @@
 import React, { useState, useEffect } from "react";
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "../firebase";
-import { FaLock, FaLockOpen, FaCircle, FaSync, FaChartBar } from "react-icons/fa";
-import "./Availability.css";
+import "./AvailabilityUnique.css";
+import { 
+  FaSearch, 
+  FaFilter, 
+  FaThLarge, 
+  FaList, 
+  FaMapMarkerAlt,
+  FaClock,
+  FaLock,
+  FaUnlock,
+  FaTools,
+  FaCheckCircle
+} from "react-icons/fa";
 
-export default function Availability() {
+export default function AvailabilityUnique() {
   const [lockers, setLockers] = useState([]);
-  const [stats, setStats] = useState({
-    available: 0,
-    reserved: 0,
-    occupied: 0,
-    total: 0
-  });
-  const [filterLocation, setFilterLocation] = useState("all");
-  const [filterSize, setFilterSize] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
   const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sizeFilter, setSizeFilter] = useState("all");
+  const [floorFilter, setFloorFilter] = useState("all");
+  const [viewMode, setViewMode] = useState("grid"); // grid or list
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedLocker, setSelectedLocker] = useState(null);
 
+  // Real-time listener
   useEffect(() => {
-    // Real-time listener for lockers
-    const unsubscribe = onSnapshot(
-      collection(db, "lockers"),
-      (snapshot) => {
-        const lockerList = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-
-        setLockers(lockerList);
-        calculateStats(lockerList);
-        setLastUpdate(new Date());
-        setLoading(false);
-      },
-      (error) => {
-        console.error("Error fetching lockers:", error);
-        setLoading(false);
-      }
-    );
+    const q = query(collection(db, "lockers"), orderBy("lockerId"));
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const lockersData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setLockers(lockersData);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching lockers:", error);
+      setLoading(false);
+    });
 
     return () => unsubscribe();
   }, []);
 
-  const calculateStats = (lockerList) => {
-    const stats = {
-      available: lockerList.filter(l => l.status === "available").length,
-      reserved: lockerList.filter(l => l.status === "reserved").length,
-      occupied: lockerList.filter(l => l.status === "occupied").length,
-      total: lockerList.length
-    };
-    setStats(stats);
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "available": return "#28a745";
-      case "reserved": return "#ffc107";
-      case "occupied": return "#dc3545";
-      default: return "#6c757d";
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    return status === "available" ? <FaLockOpen /> : <FaLock />;
-  };
-
-  const getStatusEmoji = (status) => {
-    switch (status) {
-      case "available": return "✅";
-      case "reserved": return "⏳";
-      case "occupied": return "🔒";
-      default: return "❓";
-    }
-  };
-
-  // Apply all filters
+  // Filter lockers
   const filteredLockers = lockers.filter(locker => {
-    const locationMatch = filterLocation === "all" || locker.location.includes(filterLocation);
-    const sizeMatch = filterSize === "all" || locker.size === filterSize;
-    const statusMatch = filterStatus === "all" || locker.status === filterStatus;
-    
-    return locationMatch && sizeMatch && statusMatch;
+    const matchesSearch = locker.lockerId?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || locker.status === statusFilter;
+    const matchesSize = sizeFilter === "all" || locker.size === sizeFilter;
+    const matchesFloor = floorFilter === "all" || locker.location === floorFilter;
+    return matchesSearch && matchesStatus && matchesSize && matchesFloor;
   });
 
-  const getCapacityPercentage = () => {
-    if (stats.total === 0) return 0;
-    return Math.round((stats.available / stats.total) * 100);
+  // Statistics
+  const stats = {
+    total: lockers.length,
+    available: lockers.filter(l => l.status === "available").length,
+    occupied: lockers.filter(l => l.status === "occupied").length,
+    reserved: lockers.filter(l => l.status === "reserved").length,
+    maintenance: lockers.filter(l => l.status === "maintenance").length,
   };
+
+  const availabilityRate = ((stats.available / stats.total) * 100).toFixed(1);
+
+  // Get status icon
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "available":
+        return <FaUnlock />;
+      case "occupied":
+        return <FaLock />;
+      case "reserved":
+        return <FaClock />;
+      case "maintenance":
+        return <FaTools />;
+      default:
+        return <FaLock />;
+    }
+  };
+
+  // Get floor list
+  const floors = [...new Set(lockers.map(l => l.location))].filter(Boolean);
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="spinner"></div>
-        <p>Loading locker availability...</p>
+      <div className="unique-availability">
+        <div className="loading-state">
+          <div className="loading-spinner-unique"></div>
+          <p>Loading lockers...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="availability-container">
-      <div className="availability-header">
-        <h1>🔍 Locker Availability</h1>
-        <p>Real-time status of all lockers</p>
-        <div className="last-update">
-          <FaSync className="sync-icon" />
-          Last updated: {lastUpdate.toLocaleTimeString()}
-        </div>
-      </div>
-
-      {/* Statistics Dashboard */}
-      <div className="stats-dashboard">
-        <div className="stat-card available">
-          <div className="stat-icon">✅</div>
-          <div className="stat-content">
-            <h3>{stats.available}</h3>
-            <p>Available</p>
-          </div>
-          <div className="stat-percentage">
-            {Math.round((stats.available / stats.total) * 100)}%
-          </div>
-        </div>
-
-        <div className="stat-card reserved">
-          <div className="stat-icon">⏳</div>
-          <div className="stat-content">
-            <h3>{stats.reserved}</h3>
-            <p>Reserved</p>
-          </div>
-          <div className="stat-percentage">
-            {Math.round((stats.reserved / stats.total) * 100)}%
-          </div>
-        </div>
-
-        <div className="stat-card occupied">
-          <div className="stat-icon">🔒</div>
-          <div className="stat-content">
-            <h3>{stats.occupied}</h3>
-            <p>Occupied</p>
-          </div>
-          <div className="stat-percentage">
-            {Math.round((stats.occupied / stats.total) * 100)}%
-          </div>
-        </div>
-
-        <div className="stat-card total">
-          <div className="stat-icon"><FaChartBar /></div>
-          <div className="stat-content">
-            <h3>{stats.total}</h3>
-            <p>Total Lockers</p>
-          </div>
-          <div className="capacity-bar">
-            <div 
-              className="capacity-fill" 
-              style={{ 
-                width: `${getCapacityPercentage()}%`,
-                background: getCapacityPercentage() > 50 ? '#28a745' : 
-                            getCapacityPercentage() > 25 ? '#ffc107' : '#dc3545'
-              }}
-            ></div>
+    <div className="unique-availability">
+      {/* Header with Hero Section */}
+      <div className="hero-section">
+        <div className="hero-content">
+          <h1 className="hero-title">
+            <span className="gradient-text">Locker</span> Availability
+          </h1>
+          <p className="hero-subtitle">
+            Real-time monitoring • Smart filtering • Instant booking
+          </p>
+          
+          {/* Live Stats Banner */}
+          <div className="stats-banner">
+            <div className="stat-item">
+              <div className="stat-number">{stats.available}</div>
+              <div className="stat-label">Available Now</div>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item">
+              <div className="stat-number">{availabilityRate}%</div>
+              <div className="stat-label">Availability Rate</div>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item">
+              <div className="stat-number">{stats.total}</div>
+              <div className="stat-label">Total Lockers</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Filters Section */}
-      <div className="filters-bar">
-        <div className="filter-group">
-          <label>📍 Location:</label>
-          <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)}>
-            <option value="all">All Locations</option>
-            <option value="Floor 1">Floor 1</option>
-            <option value="Floor 2">Floor 2</option>
-            <option value="Floor 3">Floor 3</option>
-          </select>
+      {/* Control Panel */}
+      <div className="control-panel">
+        <div className="search-section">
+          <div className="search-box">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by locker ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <button 
+                className="clear-btn"
+                onClick={() => setSearchTerm("")}
+              >
+                ×
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="filter-group">
-          <label>📦 Size:</label>
-          <select value={filterSize} onChange={(e) => setFilterSize(e.target.value)}>
-            <option value="all">All Sizes</option>
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label>🔐 Status:</label>
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
-            <option value="all">All Status</option>
-            <option value="available">Available</option>
-            <option value="reserved">Reserved</option>
-            <option value="occupied">Occupied</option>
-          </select>
-        </div>
-
-        <div className="filter-results">
-          Showing <strong>{filteredLockers.length}</strong> of {stats.total} lockers
+        <div className="control-actions">
+          <button 
+            className={`filter-toggle ${showFilters ? 'active' : ''}`}
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <FaFilter /> Filters
+          </button>
+          
+          <div className="view-switcher">
+            <button 
+              className={viewMode === 'grid' ? 'active' : ''}
+              onClick={() => setViewMode('grid')}
+            >
+              <FaThLarge />
+            </button>
+            <button 
+              className={viewMode === 'list' ? 'active' : ''}
+              onClick={() => setViewMode('list')}
+            >
+              <FaList />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="legend">
-        <div className="legend-item">
-          <FaCircle color="#28a745" /> <span>Available - Ready to book</span>
+      {/* Advanced Filters Panel */}
+      {showFilters && (
+        <div className="filters-panel">
+          <div className="filter-item">
+            <label>Status</label>
+            <div className="filter-chips">
+              {['all', 'available', 'reserved', 'occupied', 'maintenance'].map(status => (
+                <button
+                  key={status}
+                  className={`chip ${statusFilter === status ? 'active' : ''}`}
+                  onClick={() => setStatusFilter(status)}
+                >
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="filter-item">
+            <label>Size</label>
+            <div className="filter-chips">
+              {['all', 'small', 'medium', 'large'].map(size => (
+                <button
+                  key={size}
+                  className={`chip ${sizeFilter === size ? 'active' : ''}`}
+                  onClick={() => setSizeFilter(size)}
+                >
+                  {size.charAt(0).toUpperCase() + size.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="filter-item">
+            <label>Floor</label>
+            <div className="filter-chips">
+              <button
+                className={`chip ${floorFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setFloorFilter('all')}
+              >
+                All Floors
+              </button>
+              {floors.map(floor => (
+                <button
+                  key={floor}
+                  className={`chip ${floorFilter === floor ? 'active' : ''}`}
+                  onClick={() => setFloorFilter(floor)}
+                >
+                  {floor}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="legend-item">
-          <FaCircle color="#ffc107" /> <span>Reserved - Booking in progress</span>
+      )}
+
+      {/* Status Legend */}
+      <div className="status-legend">
+        <div className="legend-item available">
+          <FaUnlock /> Available
         </div>
-        <div className="legend-item">
-          <FaCircle color="#dc3545" /> <span>Occupied - Currently in use</span>
+        <div className="legend-item reserved">
+          <FaClock /> Reserved
+        </div>
+        <div className="legend-item occupied">
+          <FaLock /> In Use
+        </div>
+        <div className="legend-item maintenance">
+          <FaTools /> Maintenance
+        </div>
+        <div className="live-badge">
+          <span className="pulse-dot"></span>
+          Live
         </div>
       </div>
 
-      {/* Lockers Grid */}
+      {/* Results Header */}
+      <div className="results-header">
+        <h3>
+          {filteredLockers.length} {filteredLockers.length === 1 ? 'Locker' : 'Lockers'} Found
+        </h3>
+        <p className="results-subtitle">
+          {searchTerm && `Searching for "${searchTerm}"`}
+          {statusFilter !== 'all' && ` • ${statusFilter}`}
+          {sizeFilter !== 'all' && ` • ${sizeFilter} size`}
+        </p>
+      </div>
+
+      {/* Lockers Display */}
       {filteredLockers.length === 0 ? (
-        <div className="no-results">
+        <div className="no-results-state">
+          <div className="no-results-icon">🔍</div>
           <h3>No Lockers Found</h3>
-          <p>Try changing your filter criteria</p>
+          <p>Try adjusting your filters or search terms</p>
+          <button 
+            className="reset-btn"
+            onClick={() => {
+              setSearchTerm("");
+              setStatusFilter("all");
+              setSizeFilter("all");
+              setFloorFilter("all");
+            }}
+          >
+            Reset All Filters
+          </button>
         </div>
-      ) : (
-        <div className="lockers-availability-grid">
+      ) : viewMode === 'grid' ? (
+        <div className="lockers-grid-unique">
           {filteredLockers.map((locker) => (
             <div
               key={locker.id}
-              className={`availability-card ${locker.status}`}
-              style={{ borderColor: getStatusColor(locker.status) }}
+              className={`locker-card ${locker.status}`}
+              onClick={() => setSelectedLocker(locker)}
             >
-              <div className="card-header">
-                <span className="status-emoji">{getStatusEmoji(locker.status)}</span>
-                <div className="card-icon" style={{ color: getStatusColor(locker.status) }}>
+              <div className="locker-card-header">
+                <span className="locker-id">{locker.lockerId}</span>
+                <span className={`status-badge ${locker.status}`}>
                   {getStatusIcon(locker.status)}
+                </span>
+              </div>
+              
+              <div className="locker-card-body">
+                <div className="locker-visual">
+                  <div className={`locker-door ${locker.status}`}>
+                    <div className="locker-handle"></div>
+                  </div>
                 </div>
               </div>
-              
-              <h3>{locker.lockerNumber}</h3>
-              
-              <div className="card-details">
-                <p className="location">{locker.location}</p>
-                <p className="size-info">
-                  <span className={`size-badge ${locker.size}`}>
-                    {locker.size.toUpperCase()}
+
+              <div className="locker-card-footer">
+                <div className="locker-info">
+                  <span className="info-item">
+                    📏 {locker.size || 'Medium'}
                   </span>
-                </p>
+                  <span className="info-item">
+                    <FaMapMarkerAlt /> {locker.location || 'Floor 1'}
+                  </span>
+                </div>
+                {locker.status === 'available' && (
+                  <button className="quick-book-btn">
+                    Quick Book
+                  </button>
+                )}
               </div>
-              
-              <div className="status-footer">
-                <span className={`status-badge ${locker.status}`}>
-                  {locker.status.toUpperCase()}
-                </span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="lockers-list-unique">
+          {filteredLockers.map((locker) => (
+            <div
+              key={locker.id}
+              className={`locker-list-item ${locker.status}`}
+              onClick={() => setSelectedLocker(locker)}
+            >
+              <div className="list-item-left">
+                <div className={`status-indicator ${locker.status}`}>
+                  {getStatusIcon(locker.status)}
+                </div>
+                <div className="list-item-info">
+                  <h4>{locker.lockerId}</h4>
+                  <p>
+                    {locker.size} • {locker.location} • 
+                    <span className={`status-text ${locker.status}`}>
+                      {' '}{locker.status}
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div className="list-item-right">
+                {locker.status === 'available' ? (
+                  <button className="book-btn-list">Book Now</button>
+                ) : (
+                  <span className="unavailable-text">Not Available</span>
+                )}
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Quick Stats Summary */}
-      <div className="summary-section">
-        <h3>📊 Capacity Overview</h3>
-        <div className="capacity-overview">
-          <div className="capacity-item">
-            <div className="capacity-label">Current Capacity</div>
-            <div className="capacity-value">{getCapacityPercentage()}% Available</div>
-            <div className="capacity-bar-large">
-              <div 
-                className="capacity-bar-fill"
-                style={{ 
-                  width: `${getCapacityPercentage()}%`,
-                  background: getCapacityPercentage() > 50 ? 
-                    'linear-gradient(90deg, #28a745, #20c997)' : 
-                    getCapacityPercentage() > 25 ? 
-                    'linear-gradient(90deg, #ffc107, #ff9800)' : 
-                    'linear-gradient(90deg, #dc3545, #c82333)'
-                }}
-              ></div>
+      {/* Locker Details Modal */}
+      {selectedLocker && (
+        <div className="modal-overlay" onClick={() => setSelectedLocker(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="modal-close"
+              onClick={() => setSelectedLocker(null)}
+            >
+              ×
+            </button>
+            
+            <div className="modal-header">
+              <h2>{selectedLocker.lockerId}</h2>
+              <span className={`status-badge-large ${selectedLocker.status}`}>
+                {getStatusIcon(selectedLocker.status)}
+                {selectedLocker.status}
+              </span>
+            </div>
+
+            <div className="modal-body">
+              <div className="detail-row">
+                <span className="detail-label">Size:</span>
+                <span className="detail-value">{selectedLocker.size || 'Medium'}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Location:</span>
+                <span className="detail-value">{selectedLocker.location || 'Floor 1'}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Status:</span>
+                <span className="detail-value">{selectedLocker.status}</span>
+              </div>
+              {selectedLocker.currentBookingId && (
+                <div className="detail-row">
+                  <span className="detail-label">Booking ID:</span>
+                  <span className="detail-value">{selectedLocker.currentBookingId}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              {selectedLocker.status === 'available' ? (
+                <button className="primary-btn-modal">
+                  <FaCheckCircle /> Book This Locker
+                </button>
+              ) : (
+                <button className="disabled-btn-modal" disabled>
+                  Currently Unavailable
+                </button>
+              )}
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
