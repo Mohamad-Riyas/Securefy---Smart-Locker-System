@@ -5,9 +5,9 @@ import "./App.css";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Home from "./pages/Home";
-import BookLocker from "./pages/BookLocker";       // ADDED
-import Availability from "./pages/Availability";   // ADDED
-import MyQRCode from "./pages/MyQRCode";          // ADDED
+import BookLocker from "./pages/BookLocker";      
+import Availability from "./pages/Availability";  
+import MyQRCode from "./pages/MyQRCode";          
 import AdminLayout from "./components/Admin/AdminLayout";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminLockers from "./pages/Admin/AdminLockers";
