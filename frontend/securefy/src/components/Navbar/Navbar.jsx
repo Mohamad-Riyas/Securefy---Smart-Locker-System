@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import './Navbar.css';
-import logo from '../../assets/Seecurefy logo.jpg';
+import logo from '../../assets/securefy-logo.jpg';
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { signOut } from "firebase/auth";

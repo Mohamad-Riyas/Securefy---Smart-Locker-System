@@ -5,7 +5,7 @@ import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import "./Auth.css";
 import { toast } from "react-toastify";
-import logo from "../assets/Seecurefy logo.jpg";
+import logo from "../assets/securefy-logo.jpg";
 
 export default function Login() {
   const [email, setEmail] = useState("");

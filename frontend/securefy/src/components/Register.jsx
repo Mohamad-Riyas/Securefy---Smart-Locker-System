@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase";
 import "./Auth.css";
 import { toast } from "react-toastify";
-import logo from "../assets/Seecurefy logo.jpg";
+import logo from "../assets/securefy-logo.jpg";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
