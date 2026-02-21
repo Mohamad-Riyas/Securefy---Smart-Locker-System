@@ -1,0 +1,209 @@
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5%;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2000;
+    height: 80px;
+    transition: all 0.3s ease;
+}
+
+.navbar-logo-group .logo-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.navbar-logo {
+    height: 42px;
+    width: 42px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(to right, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+}
+
+.navbar-links {
+    display: flex;
+    list-style: none;
+    gap: 32px;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-links li a {
+    text-decoration: none;
+    color: #94a3b8;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    padding: 8px 0;
+}
+
+.navbar-links li a:hover,
+.navbar-links li a.active {
+    color: #f8fafc;
+}
+
+.navbar-links li a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(to right, #6366f1, #a855f7);
+    transition: width 0.3s ease;
+}
+
+.navbar-links li a:hover::after {
+    width: 100%;
+}
+
+.navbar-auth-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn-sign-in {
+    background: #6366f1;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-sign-in:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    background: #4f46e5;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.user-greeting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #f8fafc;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-greeting svg {
+    color: #818cf8;
+    font-size: 1.2rem;
+}
+
+.btn-sign-out {
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.btn-sign-out:hover {
+    background: rgba(239, 68, 68, 0.1);
+    transform: scale(1.02);
+}
+
+.admin-nav-link {
+    color: #fca5a5 !important;
+    border: 1px solid rgba(252, 165, 165, 0.3);
+    padding: 6px 12px !important;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.admin-nav-link:hover {
+    background: rgba(252, 165, 165, 0.1);
+    border-color: #fca5a5;
+}
+
+.navbar-toggle {
+    display: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+    .navbar-links {
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-toggle {
+        display: block;
+    }
+
+    .navbar-links-container {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #0f172a;
+        flex-direction: column;
+        justify-content: center;
+        padding: 40px;
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .navbar-links-container.active {
+        transform: translateX(0);
+    }
+
+    .navbar-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 32px;
+        margin-bottom: 40px;
+    }
+
+    .navbar-auth-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-sign-in,
+    .user-menu {
+        width: 100%;
+        justify-content: center;
+    }
+}
