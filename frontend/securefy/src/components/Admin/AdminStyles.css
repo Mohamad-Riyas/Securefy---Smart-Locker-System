@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 .admin-container {
   display: flex;
   min-height: 100vh;
@@ -66,7 +65,7 @@
   cursor: pointer;
   text-align: left;
 }
-  
+
 .admin-content {
   flex-grow: 1;
   padding: 30px;
@@ -79,85 +78,3 @@
   align-items: center;
   height: 100vh;
 }
-=======
-.admin-container {
-  display: flex;
-  min-height: 100vh;
-}
-
-.admin-sidebar {
-  width: 250px;
-  background-color: #0f172a;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-}
-
-.sidebar-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 30px;
-}
-
-.sidebar-logo {
-  height: 40px;
-  border-radius: 8px;
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.sidebar-link {
-  color: #cbd5e1;
-  text-decoration: none;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.sidebar-link:hover {
-  background-color: #1e293b;
-  color: white;
-}
-
-.sidebar-link.active {
-  background-color: #2563eb;
-  color: white;
-}
-
-.sidebar-bottom {
-  margin-top: auto;
-  border-top: 1px solid #334155;
-  padding-top: 10px;
-}
-
-.logout-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-}
-  
-.admin-content {
-  flex-grow: 1;
-  padding: 30px;
-  background-color: #f1f5f9;
-}
-
-.admin-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
->>>>>>> origin/main
