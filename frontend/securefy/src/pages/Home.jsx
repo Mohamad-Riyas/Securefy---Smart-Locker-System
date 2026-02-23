@@ -214,6 +214,7 @@ export default function Home() {
         </div>
       </section>
 
+<<<<<<< HEAD
       {/* Footer */}
       <footer className="footer-v2">
         <div className="footer-grid">
@@ -238,6 +239,8 @@ export default function Home() {
           © 2024 Securefy Smart Systems. Built for IIT.
         </div>
       </footer>
+=======
+>>>>>>> 2e58f09 (feat: link about us page to navbar and footer)
     </div>
   );
 }

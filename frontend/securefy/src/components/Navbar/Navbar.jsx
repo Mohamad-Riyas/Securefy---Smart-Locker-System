@@ -37,6 +37,10 @@ const Navibar = () => {
                     <li><Link to="/" onClick={() => setIsMobileMenuOpen(false)}>Home</Link></li>
                     <li><Link to="/book-locker" onClick={() => setIsMobileMenuOpen(false)}>Book Locker</Link></li>
                     <li><Link to="/availability" onClick={() => setIsMobileMenuOpen(false)}>Availability</Link></li>
+<<<<<<< HEAD
+=======
+                    <li><Link to="/about" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link></li>
+>>>>>>> 2e58f09 (feat: link about us page to navbar and footer)
                     {currentUser && (
                         <li><Link to="/my-qr-code" onClick={() => setIsMobileMenuOpen(false)}>My QR Code</Link></li>
                     )}

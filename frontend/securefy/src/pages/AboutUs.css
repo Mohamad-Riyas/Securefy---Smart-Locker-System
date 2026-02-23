@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* AboutUs.css */
 
 /* DARK THEME VARIABLES */
@@ -203,4 +204,211 @@
   .hero-section h1 {
     font-size: 2.6rem;
   }
+=======
+/* AboutUs.css */
+
+/* DARK THEME VARIABLES */
+:root {
+  --primary-blue: #7C8CFF;
+  --accent-blue: #5850EC;
+  --dark-bg: #0f172a;
+  --dark-bg-secondary: #111c2d;
+  --card-bg: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --text-primary: #E5E7EB;
+  --text-secondary: #9CA3AF;
+
+  --border-radius: 16px;
+  --transition: all 0.3s ease;
+}
+
+/* PAGE BACKGROUND */
+.about-page {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #0b1120);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding-bottom: 100px;
+}
+
+/* HERO SECTION */
+.hero-section {
+  padding: 120px 20px 100px 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #111c2d, #0f172a);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 80px;
+}
+
+.hero-section h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, #ffffff, #7C8CFF);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-section .tagline {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+/* CONTAINER */
+.about-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+
+/* CONTENT BOX */
+.content-box {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  padding: 44px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--card-border);
+  transition: var(--transition);
+}
+
+.content-box:hover {
+  transform: translateY(-4px);
+  border-color: rgba(124, 140, 255, 0.4);
+}
+
+.content-box h2 {
+  color: var(--primary-blue);
+  margin-bottom: 24px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.content-box p {
+  line-height: 1.8;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+}
+
+/* PROBLEM SECTION */
+.problem-section {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+}
+
+.problem-content {
+  flex: 1.2;
+}
+
+.problem-content ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 24px;
+}
+
+.problem-content li {
+  margin-bottom: 16px;
+  padding-left: 30px;
+  position: relative;
+  color: var(--text-primary);
+}
+
+.problem-content li::before {
+  content: "•";
+  color: var(--primary-blue);
+  font-size: 1.2rem;
+  position: absolute;
+  left: 0;
+}
+
+/* IMAGE PLACEHOLDER */
+.problem-image {
+  flex: 0.8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--border-radius);
+  aspect-ratio: 1/1;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.placeholder-text {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 20px;
+}
+
+/* STRENGTHS SECTION */
+.strengths-section h2 {
+  text-align: center;
+  margin-bottom: 40px;
+  color: var(--primary-blue);
+  font-size: 2.2rem;
+}
+
+.strengths-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.strength-card {
+  background: var(--card-bg);
+  padding: 35px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--card-border);
+  text-align: center;
+  transition: var(--transition);
+}
+
+.strength-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(124, 140, 255, 0.5);
+}
+
+.icon-wrapper {
+  font-size: 2.5rem;
+  color: var(--primary-blue);
+  margin-bottom: 20px;
+  display: inline-block;
+  padding: 18px;
+  background: rgba(124, 140, 255, 0.08);
+  border-radius: 18px;
+}
+
+.strength-card h3 {
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+  color: var(--text-primary);
+}
+
+.strength-card p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .problem-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .problem-content li {
+    text-align: left;
+  }
+
+  .hero-section h1 {
+    font-size: 2.6rem;
+  }
+>>>>>>> 2e58f09 (feat: link about us page to navbar and footer)
 }
