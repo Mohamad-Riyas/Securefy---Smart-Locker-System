@@ -1,0 +1,28 @@
+/*
+  Tailwind v4 — "important" flag makes all utilities !important
+  so they always override Bootstrap's component styles.
+  This is the official Tailwind v4 solution for coexisting with
+  third-party CSS frameworks like Bootstrap.
+  See: https://tailwindcss.com/docs/styling-with-utility-classes#using-the-important-flag
+*/
+@import "tailwindcss" important;
+
+/* Global base resets */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Keep anchor tags from getting Bootstrap's blue underline in Tailwind-styled components */
+a {
+    text-decoration: inherit;
+    color: inherit;
+}
