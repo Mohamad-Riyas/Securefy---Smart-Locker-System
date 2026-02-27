@@ -12,15 +12,28 @@ import {
 // 3D Element representing a Smart Locker
 function SecureNode() {
   const groupRef = useRef();
+  const phoneRef = useRef();
+  const laserRef = useRef();
 
   useFrame((state) => {
-    // Gentle floating and slow rotation
+    // Gentle floating
     groupRef.current.position.y = Math.sin(state.clock.getElapsedTime()) * 0.1;
-    groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.15;
+
+    // Animate the phone scanning (up and down slightly)
+    if (phoneRef.current) {
+      phoneRef.current.position.y = 0.4 + Math.sin(state.clock.getElapsedTime() * 2) * 0.15;
+    }
+
+    // Animate laser opacity and pulsating effect
+    if (laserRef.current) {
+      laserRef.current.scale.x = 1 + Math.sin(state.clock.getElapsedTime() * 15) * 0.1;
+      laserRef.current.scale.z = 1 + Math.sin(state.clock.getElapsedTime() * 15) * 0.1;
+      laserRef.current.material.opacity = 0.25 + Math.sin(state.clock.getElapsedTime() * 15) * 0.15;
+    }
   });
 
   return (
-    <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
+    <Float speed={2} rotationIntensity={0} floatIntensity={1}>
       <group ref={groupRef}>
         {/* Locker Body */}
         <mesh position={[0, 0, 0]}>
@@ -66,6 +79,33 @@ function SecureNode() {
           <boxGeometry args={[0.08, 0.4, 0.05]} />
           <meshStandardMaterial color="#94a3b8" metalness={0.9} roughness={0.1} />
         </mesh>
+
+        {/* The Phone scanning the QR code */}
+        <group ref={phoneRef} position={[0, 0.4, 2.3]} rotation={[-0.05, 0, 0]}>
+          {/* Phone body */}
+          <mesh>
+            <boxGeometry args={[0.5, 1.0, 0.08]} />
+            <meshStandardMaterial color="#334155" metalness={0.8} roughness={0.2} />
+          </mesh>
+          {/* Phone Screen (facing the locker) */}
+          <mesh position={[0, 0, -0.041]} rotation={[0, Math.PI, 0]}>
+            <planeGeometry args={[0.45, 0.95]} />
+            <meshBasicMaterial color="#0f172a" />
+          </mesh>
+          {/* Scanner Light on phone screen */}
+          <mesh position={[0, 0, -0.042]} rotation={[0, Math.PI, 0]}>
+            <planeGeometry args={[0.4, 0.02]} />
+            <meshBasicMaterial color="#10b981" />
+          </mesh>
+
+          {/* Laser beam emanating from phone to QR code */}
+          <group position={[0, 0, -0.75]}>
+            <mesh ref={laserRef} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.2, 0.01, 1.4, 32]} />
+              <meshBasicMaterial color="#10b981" transparent opacity={0.4} depthWrite={false} />
+            </mesh>
+          </group>
+        </group>
       </group>
     </Float>
   );
@@ -86,7 +126,7 @@ const Home3DScene = () => {
           <Environment preset="city" />
           <ContactShadows position={[0, -2.5, 0]} opacity={0.6} scale={15} blur={2.5} far={4} color="#000000" />
         </Suspense>
-        <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.5} />
+        <OrbitControls enableZoom={false} enablePan={false} autoRotate={false} />
       </Canvas>
     </div>
   );
