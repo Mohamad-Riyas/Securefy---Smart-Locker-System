@@ -13,6 +13,9 @@ firebase-debug.*.log*
 # Build output
 dist/
 dist-ssr/
+.vite/
+.vite
+dist-ssr/
 *.local
 
 # Firebase config
