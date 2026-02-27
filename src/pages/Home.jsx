@@ -35,16 +35,16 @@ function SecureNode() {
   return (
     <Float speed={2} rotationIntensity={0} floatIntensity={1}>
       <group ref={groupRef}>
-        {/* Locker Body */}
+        {/* Locker Body (Wood Finish) */}
         <mesh position={[0, 0, 0]}>
           <boxGeometry args={[1.6, 2.6, 1.6]} />
-          <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.3} />
+          <meshStandardMaterial color="#5C4033" metalness={0.05} roughness={0.9} />
         </mesh>
 
-        {/* Locker Door */}
+        {/* Locker Door (Lighter Wood Finish) */}
         <mesh position={[0, 0, 0.81]}>
           <boxGeometry args={[1.5, 2.5, 0.05]} />
-          <meshStandardMaterial color="#334155" metalness={0.6} roughness={0.4} />
+          <meshStandardMaterial color="#8B5A2B" metalness={0.05} roughness={0.8} />
         </mesh>
 
         {/* Screen Background Panel */}
@@ -116,9 +116,11 @@ const Home3DScene = () => {
   return (
     <div className="absolute inset-x-0 top-0 h-screen w-full z-0 pointer-events-none opacity-90">
       <Canvas camera={{ position: [0, 0, 6], fov: 50 }}>
-        <ambientLight intensity={0.6} />
+        <ambientLight intensity={0.8} />
         <directionalLight position={[10, 10, 10]} intensity={1.5} />
         <directionalLight position={[-10, 5, -5]} intensity={0.5} color="#3b82f6" />
+        {/* Front light to illuminate the locker face and phone clearly */}
+        <directionalLight position={[0, 0, 10]} intensity={1.5} color="#ffffff" />
         <Suspense fallback={null}>
           <group position={[3.5, -0.2, 0]}> {/* Shift to the right for desktop layout */}
             <SecureNode />
