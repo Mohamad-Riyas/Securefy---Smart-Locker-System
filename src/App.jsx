@@ -2,8 +2,7 @@ import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 
-import Login from "./components/Login";
-import Register from "./components/Register";
+import AuthPage from "./components/AuthPage";
 import Home from "./pages/Home";
 import BookLocker from "./pages/BookLocker";
 import Availability from "./pages/Availability";
@@ -37,8 +36,9 @@ function App() {
         <Route path="/" element={<Home />} />
 
         {/* Auth Pages — self-contained, no layout wrapper needed */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        {/* Unified Auth Page for seamless animated toggle */}
+        <Route path="/login" element={<AuthPage />} />
+        <Route path="/register" element={<AuthPage />} />
 
         {/* Locker Pages */}
         <Route path="/book-locker" element={<BookLocker />} />
