@@ -2,58 +2,69 @@ import React, { Suspense, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, Float, ContactShadows, Text } from "@react-three/drei";
+import { OrbitControls, Environment, Float, ContactShadows, Html } from "@react-three/drei";
 import { motion } from "framer-motion";
 import {
   FaArrowRight, FaQrcode, FaShieldAlt, FaClock,
   FaMobileAlt, FaLock, FaCheckCircle, FaBolt
 } from "react-icons/fa";
 
-// 3D Element representing a secure node or locker
+// 3D Element representing a Smart Locker
 function SecureNode() {
   const groupRef = useRef();
 
   useFrame((state) => {
-    groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.3;
+    // Gentle floating and slow rotation
+    groupRef.current.position.y = Math.sin(state.clock.getElapsedTime()) * 0.1;
+    groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.15;
   });
 
   return (
-    <Float speed={2.5} rotationIntensity={1.5} floatIntensity={1.5}>
+    <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
       <group ref={groupRef}>
-        {/* Outer glowing frame */}
-        <mesh>
-          <boxGeometry args={[2.8, 2.8, 2.8]} />
-          <meshPhysicalMaterial
-            color="#3b82f6"
-            metalness={0.9}
-            roughness={0.1}
-            wireframe={true}
-            transparent
-            opacity={0.3}
-          />
+        {/* Locker Body */}
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[1.6, 2.6, 1.6]} />
+          <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.3} />
         </mesh>
 
-        {/* Inner solid tech block representing a locker */}
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[2, 2, 2]} />
-          <meshPhysicalMaterial
-            color="#0f172a"
-            metalness={0.8}
-            roughness={0.2}
-            clearcoat={1}
-            clearcoatRoughness={0.1}
-          />
+        {/* Locker Door */}
+        <mesh position={[0, 0, 0.81]}>
+          <boxGeometry args={[1.5, 2.5, 0.05]} />
+          <meshStandardMaterial color="#334155" metalness={0.6} roughness={0.4} />
         </mesh>
 
-        {/* Floating tech sphere inside */}
-        <mesh position={[0, 0, 0]}>
-          <sphereGeometry args={[0.6, 64, 64]} />
-          <meshPhysicalMaterial
-            color="#60a5fa"
-            emissive="#3b82f6"
-            emissiveIntensity={2}
-            toneMapped={false}
-          />
+        {/* Screen Background Panel */}
+        <mesh position={[0, 0.4, 0.84]}>
+          <planeGeometry args={[0.9, 1.1]} />
+          <meshBasicMaterial color="#020617" />
+        </mesh>
+
+        {/* Interactive QR Code Overlay */}
+        <Html position={[0, 0.4, 0.85]} transform distanceFactor={1.8}>
+          <div className="bg-white p-3 rounded-xl flex flex-col items-center justify-center border-4 border-indigo-500 shadow-[0_0_25px_rgba(99,102,241,0.6)] animate-pulse">
+            <img
+              src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=SecurefyDemo2026"
+              alt="Scan QR"
+              className="w-[100px] h-[100px] pointer-events-none"
+            />
+            <span className="text-[10px] font-black text-slate-900 mt-2 uppercase tracking-widest">
+              Scan to Unlock
+            </span>
+          </div>
+        </Html>
+
+        {/* Working Status Indicator (Green Light) */}
+        <mesh position={[0.55, 1.05, 0.84]}>
+          <circleGeometry args={[0.06, 32]} />
+          <meshBasicMaterial color="#10b981" />
+        </mesh>
+        <pointLight position={[0.55, 1.05, 0.9]} color="#10b981" intensity={2} distance={1.5} />
+
+        {/* Door Handle */}
+        <mesh position={[-0.6, 0, 0.84]}>
+          <boxGeometry args={[0.08, 0.4, 0.05]} />
+          <meshStandardMaterial color="#94a3b8" metalness={0.9} roughness={0.1} />
         </mesh>
       </group>
     </Float>
@@ -63,13 +74,13 @@ function SecureNode() {
 // Background 3D Scene
 const Home3DScene = () => {
   return (
-    <div className="absolute inset-x-0 top-0 h-[800px] w-full z-0 pointer-events-none opacity-80 md:opacity-100">
-      <Canvas camera={{ position: [0, 0, 7], fov: 45 }}>
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} intensity={1} />
-        <directionalLight position={[-10, 10, -5]} intensity={0.5} color="#3b82f6" />
+    <div className="absolute inset-x-0 top-0 h-screen w-full z-0 pointer-events-none opacity-90">
+      <Canvas camera={{ position: [0, 0, 6], fov: 50 }}>
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[10, 10, 10]} intensity={1.5} />
+        <directionalLight position={[-10, 5, -5]} intensity={0.5} color="#3b82f6" />
         <Suspense fallback={null}>
-          <group position={[3, 0, 0]}> {/* Shift it to the right on desktop */}
+          <group position={[3.5, -0.2, 0]}> {/* Shift to the right for desktop layout */}
             <SecureNode />
           </group>
           <Environment preset="city" />
@@ -110,9 +121,9 @@ export default function Home() {
       {/* 3D Canvas Background */}
       <Home3DScene />
 
-      {/* Hero Section */}
-      <section className="relative z-10 pt-32 pb-20 lg:pt-48 lg:pb-32 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      {/* Hero Section - Single Screen View */}
+      <section className="relative z-10 h-screen flex items-center px-6 max-w-7xl mx-auto pt-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 w-full">
 
           {/* Left Content */}
           <motion.div
