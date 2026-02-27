@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/securefy-logo.jpg";
-import { FaEnvelope, FaLock, FaUser, FaArrowRight, FaUserShield } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaUser, FaArrowRight, FaUserShield, FaEye, FaEyeSlash, FaHome } from "react-icons/fa";
 
 export default function AuthPage() {
     const navigate = useNavigate();
@@ -22,6 +22,7 @@ export default function AuthPage() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         if (!authLoading && currentUser) {
@@ -102,6 +103,15 @@ export default function AuthPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-[#02040c]">
+
+            {/* Back to Home Button */}
+            <button
+                onClick={() => navigate("/")}
+                className="absolute top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-all backdrop-blur-md cursor-pointer group"
+            >
+                <FaHome className="text-sm group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-semibold tracking-wide">Home</span>
+            </button>
 
             {/* Dynamic Lightning Background Effect */}
             <motion.div
@@ -240,17 +250,24 @@ export default function AuthPage() {
                                 {/* Password */}
                                 <div>
                                     <label className="text-[rgba(235,245,255,0.85)] text-xs font-semibold mb-1 block uppercase tracking-wider">Security Key</label>
-                                    <div className="flex items-center gap-2.5 px-3 py-3 rounded-xl border border-white/[0.12] bg-white/[0.05] focus-within:bg-white/[0.08] transition-colors">
+                                    <div className="flex items-center gap-2.5 px-3 py-3 rounded-xl border border-white/[0.12] bg-white/[0.05] focus-within:bg-white/[0.08] transition-colors relative">
                                         <FaLock className="text-[rgba(230,245,255,0.6)] text-sm shrink-0" />
                                         <input
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
                                             placeholder="••••••••"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
                                             minLength={mode === "register" ? 6 : 0}
-                                            className="w-full bg-transparent border-none outline-none text-white text-sm placeholder:text-white/30"
+                                            className="w-full bg-transparent border-none outline-none text-white text-sm placeholder:text-white/30 pr-8"
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+                                        >
+                                            {showPassword ? <FaEyeSlash className="text-[16px]" /> : <FaEye className="text-[16px]" />}
+                                        </button>
                                     </div>
                                 </div>
 
