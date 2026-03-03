@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db, auth } from "../firebase";
-import { bookLocker } from "../services/BookingQr";
+import { bookLocker } from "../services/bookingservice";
 import { toast } from "react-toastify";
 import { FaLock, FaMapMarkerAlt, FaClock, FaFilter } from "react-icons/fa";
 import "./BookLocker.css";
@@ -93,7 +93,7 @@ export default function BookLocker() {
   };
 
   const getSizeIcon = (size) => {
-    switch (size) {
+    switch(size) {
       case "small": return "📦";
       case "medium": return "📦📦";
       case "large": return "📦📦📦";
@@ -129,7 +129,7 @@ export default function BookLocker() {
               <option value="large">Large 📦📦📦</option>
             </select>
           </div>
-
+          
           <div className="filter-group">
             <label>Location:</label>
             <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)}>
@@ -164,13 +164,13 @@ export default function BookLocker() {
               <div className="locker-badge">
                 {selectedLocker?.id === locker.id && <span className="selected-badge">✓ Selected</span>}
               </div>
-
+              
               <div className="locker-icon-display">
                 <FaLock size={36} />
               </div>
-
+              
               <h3>{locker.lockerId}</h3>
-
+              
               <div className="locker-details">
                 <p className="locker-location">
                   <FaMapMarkerAlt /> {locker.location}
@@ -194,7 +194,7 @@ export default function BookLocker() {
             <p className="selected-locker-name">
               Locker: <strong>{selectedLocker.lockerId}</strong> ({selectedLocker.location})
             </p>
-
+            
             <div className="time-inputs">
               <div className="input-group">
                 <label>
@@ -222,7 +222,7 @@ export default function BookLocker() {
             </div>
 
             <div className="booking-info-alert">
-              <strong>⏰ Important:</strong> QR code expires 15 minutes after booking.
+              <strong>⏰ Important:</strong> QR code expires 15 minutes after booking. 
               Please scan at the locker within this time.
             </div>
 
