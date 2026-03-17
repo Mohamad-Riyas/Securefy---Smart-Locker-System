@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db, auth } from "../firebase";
-import { bookLocker } from "../services/bookingservice";
+import { bookLocker } from "../services/BookingQr";
 import { toast } from "react-toastify";
 import { FaLock, FaMapMarkerAlt, FaClock, FaFilter } from "react-icons/fa";
 import "./BookLocker.css";
