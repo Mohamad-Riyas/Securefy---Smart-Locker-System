@@ -516,10 +516,10 @@ export default function Home() {
               ) : (
                 <>
                   <Link to="/register" className="px-12 py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold text-xl transition-all shadow-[0_0_30px_rgba(37,99,235,0.4)] hover:shadow-[0_0_40px_rgba(37,99,235,0.6)] hover:-translate-y-1">
-                    Deploy Securefy
+                    Get Started
                   </Link>
                   <Link to="/login" className="px-12 py-5 bg-slate-800 border border-slate-600 hover:border-slate-500 hover:bg-slate-700 text-white rounded-full font-bold text-xl transition-all shadow-sm">
-                    Sign In to Console
+                    Sign In
                   </Link>
                 </>
               )}
