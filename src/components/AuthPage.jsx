@@ -25,9 +25,10 @@ export default function AuthPage() {
     const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
-        if (!authLoading && currentUser) {
-            if (userRole === "admin") navigate("/admin");
-            else navigate("/");
+        // Only redirect if auth is not loading and we have a definitive role
+        if (!authLoading && currentUser && userRole) {
+            if (userRole === "admin") navigate("/admin", { replace: true });
+            else navigate("/", { replace: true });
         }
     }, [currentUser, userRole, authLoading, navigate]);
 
@@ -50,19 +51,12 @@ export default function AuthPage() {
 
         if (mode === "login") {
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                let actualRole = role;
-                try {
-                    const userDoc = await getDoc(doc(db, "users", user.uid));
-                    if (userDoc.exists()) actualRole = userDoc.data().role;
-                } catch (err) {
-                    console.warn(err);
-                }
+                await signInWithEmailAndPassword(auth, email, password);
                 toast.success(`Welcome back!`);
-                navigate(actualRole === "admin" ? "/admin" : "/");
+                // Let the useEffect handle redirection once AuthContext updates with userRole
             } catch (err) {
                 toast.error(err.message);
+                setLoading(false);
             }
         } else {
             try {
@@ -78,9 +72,11 @@ export default function AuthPage() {
                     createdAt: new Date().toISOString(),
                 }, { merge: true });
                 toast.success(`Account created successfully!`);
-                setTimeout(() => navigate("/login"), 1000);
+                // The useEffect will handle redirection because role is now in DB 
+                // and AuthContext snapshot will pick it up.
             } catch (err) {
                 toast.error(`Registration Failed: ${err.message}`);
+                setLoading(false);
             }
         }
         setLoading(false);

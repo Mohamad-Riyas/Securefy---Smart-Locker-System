@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { auth, db } from "../firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 
 const AuthContext = createContext();
@@ -20,6 +20,7 @@ export function AuthProvider({ children }) {
 
         const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
             if (user) {
+                setLoading(true); // Set loading to true while we fetch the role
                 setCurrentUser(user);
 
                 // Clear previous doc listener if any
@@ -66,10 +67,15 @@ export function AuthProvider({ children }) {
         };
     }, []);
 
+    const logout = () => {
+        return signOut(auth);
+    };
+
     const value = {
         currentUser,
         userRole,
         userName,
+        logout,
         loading
     };
 

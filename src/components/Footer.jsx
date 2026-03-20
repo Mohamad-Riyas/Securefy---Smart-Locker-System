@@ -4,8 +4,50 @@ import { FaLock, FaQrcode, FaMobileAlt } from "react-icons/fa";
 
 const Footer = () => {
     return (
-        <footer className="relative z-10 border-t border-slate-800 bg-slate-950 pt-20 pb-10 overflow-hidden">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
+        <footer className="relative z-10 border-t border-slate-800 bg-slate-950 pt-32 pb-10 overflow-hidden group">
+            {/* --- Professional Electric Sine Wave Background --- */}
+            
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 flex items-end justify-center opacity-70">
+                {/* Glow & Gradient Definitions */}
+                <svg width="0" height="0">
+                    <defs>
+                        <linearGradient id="wave-grad-1" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#4f46e5" stopOpacity="0" />
+                            <stop offset="50%" stopColor="#818cf8" stopOpacity="0.8" />
+                            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                        </linearGradient>
+                        <filter id="wave-glow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="8" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+                </svg>
+
+                {/* Layer 1: Foreground Fast Wave */}
+                <svg className="absolute bottom-[-100px] w-[200%] h-[400px] min-w-[2000px] animate-wave-slide opacity-80" viewBox="0 0 2000 400" preserveAspectRatio="none">
+                    <path 
+                        d="M 0 200 Q 250 100 500 200 T 1000 200 Q 1250 100 1500 200 T 2000 200" 
+                        fill="none" 
+                        stroke="url(#wave-grad-1)" 
+                        strokeWidth="4" 
+                        filter="url(#wave-glow)" 
+                    />
+                </svg>
+
+                {/* Layer 2: Background Slow Reversed Wave */}
+                <svg className="absolute bottom-[-50px] w-[200%] h-[500px] min-w-[2000px] animate-wave-slide-slow opacity-50" viewBox="0 0 2000 500" preserveAspectRatio="none">
+                    <path 
+                        d="M 0 250 Q 250 400 500 250 T 1000 250 Q 1250 400 1500 250 T 2000 250" 
+                        fill="none" 
+                        stroke="url(#wave-grad-1)" 
+                        strokeWidth="6" 
+                        filter="url(#wave-glow)" 
+                    />
+                </svg>
+            </div>
+
+            {/* Static Ambient Base Glow */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent z-0"></div>
 
             <div className="max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">

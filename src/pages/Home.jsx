@@ -119,7 +119,7 @@ function LockerBank() {
 // 3D Canvas wrapper
 const Hero3DScene = () => {
   return (
-    <div className="absolute inset-y-0 right-0 w-full lg:w-[55%] h-full z-0">
+    <div className="w-full h-[45vh] sm:h-[50vh] lg:h-full relative lg:absolute lg:inset-y-0 lg:right-0 lg:w-[55%] z-0 mt-8 lg:mt-0 pointer-events-auto">
       <Canvas camera={{ position: [0, 0, 6], fov: 50 }}>
         <fog attach="fog" args={['#0f172a', 5, 15]} />
         <ambientLight intensity={0.6} />
@@ -290,7 +290,7 @@ export default function Home() {
     <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-100 font-sans selection:bg-blue-500/40 selection:text-white min-h-screen">
       
       {/* --- HERO SECTION --- */}
-      <section className="relative pt-24 pb-20 lg:pt-32 lg:pb-28 overflow-hidden min-h-[90vh] flex items-center">
+      <section className="relative pt-24 pb-12 lg:pt-32 lg:pb-28 overflow-hidden min-h-[90vh] flex flex-col lg:flex-row items-center lg:justify-between">
         {/* Lighter Elevated Ambient Glow */}
         <div className="absolute top-[-10%] right-[-5%] w-[50vw] h-[50vw] bg-blue-500/15 rounded-full blur-[180px] pointer-events-none"></div>
         <div className="absolute bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-indigo-500/15 rounded-full blur-[180px] pointer-events-none"></div>
@@ -298,16 +298,13 @@ export default function Home() {
         {/* Subtle background grid pattern */}
         <div className="absolute inset-0 z-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(#60a5fa 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
         
-        {/* Right side 3D element */}
-        <Hero3DScene />
-        
-        <div className="max-w-7xl mx-auto px-6 w-full relative z-10 pointer-events-none">
-          {/* pointer-events-none on wrapper so it doesn't block mouse movements, restored on children */}
+        {/* Left side Text Content */}
+        <div className="max-w-7xl mx-auto px-6 w-full relative z-10 pointer-events-none flex-1 lg:flex-none">
           <motion.div 
-            className="w-full lg:w-[50%] flex flex-col items-start gap-8 pointer-events-auto"
+            className="w-full lg:w-[50%] flex flex-col items-start gap-6 lg:gap-8 pointer-events-auto pt-8 lg:pt-0"
             initial="hidden" animate="visible" variants={staggerContainer}
           >
-            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-sm font-semibold shadow-sm backdrop-blur-md">
+            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-[0.8rem] md:text-sm font-semibold shadow-sm backdrop-blur-md">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-400"></span>
@@ -315,38 +312,41 @@ export default function Home() {
               Enterprise Grade Locker System
             </motion.div>
             
-            <motion.h1 variants={fadeUp} className="text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] drop-shadow-sm">
+            <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] drop-shadow-sm">
               Intelligent Storage for the <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-300">Modern Campus.</span>
             </motion.h1>
             
-            <motion.p variants={fadeUp} className="text-xl text-slate-300 leading-relaxed max-w-lg font-light">
+            <motion.p variants={fadeUp} className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-lg font-light">
               Securefy provides fully autonomous, contactless, and highly secure smart locker infrastructure powered by immediate QR tokenization. 
             </motion.p>
             
-            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-4">
+            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-2 lg:mt-4">
               {userRole === 'admin' ? (
-                <Link to="/admin" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all duration-300 shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)] flex items-center justify-center gap-2 hover:-translate-y-1">
+                <Link to="/admin" className="px-6 sm:px-8 py-3.5 sm:py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all duration-300 shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)] flex items-center justify-center gap-2 hover:-translate-y-1">
                   Launch Admin Console <FaArrowRight />
                 </Link>
               ) : (
                 <>
-                  <Link to="/book-locker" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all duration-300 shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)] flex items-center justify-center gap-2 hover:-translate-y-1">
+                  <Link to="/book-locker" className="px-6 sm:px-8 py-3.5 sm:py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all duration-300 shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)] flex items-center justify-center gap-2 hover:-translate-y-1 text-center">
                     Reserve a Locker <FaArrowRight />
                   </Link>
-                  <Link to="/availability" className="px-8 py-4 bg-slate-800/80 hover:bg-slate-700 border border-slate-600 text-slate-200 rounded-xl font-bold transition-all duration-300 shadow-sm flex items-center justify-center hover:-translate-y-1 backdrop-blur-md">
+                  <Link to="/availability" className="px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-800/80 hover:bg-slate-700 border border-slate-600 text-slate-200 rounded-xl font-bold transition-all duration-300 shadow-sm flex items-center justify-center hover:-translate-y-1 backdrop-blur-md text-center">
                     Live Availability
                   </Link>
                 </>
               )}
             </motion.div>
             
-            <motion.div variants={fadeUp} className="flex items-center gap-6 mt-6 text-sm font-medium text-slate-300">
-              <div className="flex items-center gap-2"><FaCheckCircle className="text-emerald-400 text-lg drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]" /> Keyless Entry</div>
-              <div className="flex items-center gap-2"><FaCheckCircle className="text-emerald-400 text-lg drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]" /> 24/7 Access</div>
-              <div className="flex items-center gap-2"><FaCheckCircle className="text-emerald-400 text-lg drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]" /> Cloud Managed</div>
+            <motion.div variants={fadeUp} className="flex flex-wrap lg:flex-nowrap items-center gap-4 lg:gap-6 mt-4 lg:mt-6 text-xs sm:text-sm font-medium text-slate-300">
+              <div className="flex items-center gap-2"><FaCheckCircle className="text-emerald-400 text-base lg:text-lg drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]" /> Keyless Entry</div>
+              <div className="flex items-center gap-2"><FaCheckCircle className="text-emerald-400 text-base lg:text-lg drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]" /> 24/7 Access</div>
+              <div className="flex items-center gap-2"><FaCheckCircle className="textemerald-400 text-base lg:text-lg drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]" /> Cloud Managed</div>
             </motion.div>
           </motion.div>
         </div>
+
+        {/* Right side 3D element */}
+        <Hero3DScene />
       </section>
 
       {/* --- STATS & TRUST STRIP --- */}

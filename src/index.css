@@ -26,3 +26,15 @@ a {
     text-decoration: inherit;
     color: inherit;
 }
+
+/* Beautiful Flowing Wave Animations */
+@keyframes wave-slide {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+}
+.animate-wave-slide {
+    animation: wave-slide 12s linear infinite;
+}
+.animate-wave-slide-slow {
+    animation: wave-slide 18s linear infinite reverse;
+}
