@@ -177,8 +177,8 @@ bool verifyWithBackend(String token) {
 
   Serial.println("[HTTP] Response (" + String(statusCode) + "): " + response);
 
-  // Parse response:  { "allow": true }  or  { "allow": false, "reason": "..." }
-  StaticJsonDocument<256> resDoc;
+  // BUG FIX #3 — JsonDocument instead of StaticJsonDocument
+  JsonDocument resDoc;
   DeserializationError err = deserializeJson(resDoc, response);
   if (err) {
     Serial.println("[ERROR] Failed to parse backend response");
@@ -192,13 +192,15 @@ bool verifyWithBackend(String token) {
   return resDoc["allow"] == true;
 }
 
-// ── Physically opens the locker solenoid ──
+// ── BUG FIX #1 — Non-blocking unlock ──
+// Instead of delay(5000) which freezes the web server,
+// we just set a flag and let loop() check when time is up.
 void unlockLocker() {
+  if (unlocking) return;           // already open, ignore duplicate scan
   Serial.println("[RELAY] Energising solenoid — UNLOCKED");
   digitalWrite(SOLENOID_PIN, RELAY_UNLOCK);
-  delay(UNLOCK_DURATION_MS);
-  digitalWrite(SOLENOID_PIN, RELAY_LOCK);
-  Serial.println("[RELAY] Solenoid off — LOCKED");
+  unlocking   = true;
+  unlockStart = millis();
 }
 
 // ── Heartbeat: tells backend this ESP32 is alive ──
