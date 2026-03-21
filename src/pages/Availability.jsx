@@ -65,7 +65,6 @@ export default function AvailabilityUnique() {
 
   const availabilityRate = ((stats.available / stats.total) * 100).toFixed(1);
 
-  // Get status icon
   const getStatusIcon = (status) => {
     switch (status) {
       case "available":
