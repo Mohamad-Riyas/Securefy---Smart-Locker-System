@@ -46,6 +46,7 @@ function App() {
         <Route path="/availability" element={<Availability />} />
         <Route path="/my-qr-code" element={<MyQRCode />} />
         <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
