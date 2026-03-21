@@ -147,6 +147,12 @@ bool verifyWithBackend(String token) {
   String url = String(BACKEND_URL) + "/verifyQr";
   http.begin(url);
 
+  // set a timeout so we don't hang if server is unreachable
+  http.setTimeout(HTTP_TIMEOUT_MS);
+
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("x-device-key", DEVICE_KEY);
+
 
   // Build JSON body:  { "token": "QR_...", "lockerId": "L001" }
   StaticJsonDocument<256> reqDoc;
