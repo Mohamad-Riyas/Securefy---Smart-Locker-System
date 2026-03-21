@@ -8,6 +8,7 @@ import BookLocker from "./pages/BookLocker";
 import Availability from "./pages/Availability";
 import MyQRCode from "./pages/MyQRCode";
 import AboutUs from "./pages/AboutUs";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AdminLayout from "./components/Admin/AdminLayout";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminLockers from "./pages/Admin/AdminLockers";
