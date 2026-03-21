@@ -95,6 +95,15 @@ void handleScan() {
   if (espServer.hasArg("ticket")) {
     scannedToken = espServer.arg("ticket");
   }
+  // BUG FIX #2a — also read raw JSON POST body if ticket param is missing
+  else if (espServer.hasArg("plain")) {
+    String rawBody = espServer.arg("plain");
+    JsonDocument bodyDoc;                              // FIX #3 — JsonDocument
+    DeserializationError e = deserializeJson(bodyDoc, rawBody);
+    if (!e && bodyDoc.containsKey("ticket")) {
+      scannedToken = bodyDoc["ticket"].as<String>();
+    }
+  }
 
   scannedToken.trim();
 
