@@ -154,8 +154,8 @@ bool verifyWithBackend(String token) {
   http.addHeader("x-device-key", DEVICE_KEY);
 
 
-  // Build JSON body:  { "token": "QR_...", "lockerId": "L001" }
-  StaticJsonDocument<256> reqDoc;
+  // use JsonDocument instead of deprecated StaticJsonDocument
+  JsonDocument reqDoc;
   reqDoc["token"]    = token;
   reqDoc["lockerId"] = MY_LOCKER_ID;
   String body;
