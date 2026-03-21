@@ -82,7 +82,7 @@ const Footer = () => {
                         <ul className="space-y-4 list-none p-0">
                             <li><Link to="/about-us" className="text-slate-400 hover:text-indigo-400 transition-colors no-underline">About Us</Link></li>
                             <li><Link to="#" className="text-slate-400 hover:text-indigo-400 transition-colors no-underline">Help Center</Link></li>
-                            <li><Link to="#" className="text-slate-400 hover:text-indigo-400 transition-colors no-underline">Privacy Policy</Link></li>
+                            <li><Link to="/privacy-policy" className="text-slate-400 hover:text-indigo-400 transition-colors no-underline">Privacy Policy</Link></li>
                         </ul>
                     </div>
                 </div>
