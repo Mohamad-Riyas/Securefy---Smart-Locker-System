@@ -55,6 +55,9 @@ const int RELAY_LOCK   = HIGH;
 // How long the locker stays open (milliseconds)
 const int UNLOCK_DURATION_MS = 5000;  // 5 seconds
 
+// HTTP timeout (milliseconds) — avoids hanging forever if backend is slow
+const int HTTP_TIMEOUT_MS = 8000;
+
 // ─────────────────────────────────────────────
 //  WEB SERVER (ESP32 listens on port 80)
 //  Your QR scanner app sends the scanned token here
