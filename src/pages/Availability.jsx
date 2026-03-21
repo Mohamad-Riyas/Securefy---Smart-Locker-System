@@ -54,7 +54,7 @@ export default function AvailabilityUnique() {
     return matchesSearch && matchesStatus && matchesSize && matchesFloor;
   });
 
-  // Statistics
+  
   const stats = {
     total: lockers.length,
     available: lockers.filter(l => l.status === "available").length,
