@@ -212,7 +212,7 @@ void sendHeartbeat() {
   http.addHeader("Content-Type", "application/json");
   http.addHeader("x-device-key", DEVICE_KEY);
 
-  StaticJsonDocument<100> doc;
+  JsonDocument doc;  
   doc["lockerId"] = MY_LOCKER_ID;
   String body;
   serializeJson(doc, body);
