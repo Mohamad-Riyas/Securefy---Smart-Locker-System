@@ -1,8 +1,38 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './AboutUs.css';
 import { FaQrcode, FaClock, FaSmile, FaShieldAlt, FaBuilding, FaCogs } from 'react-icons/fa';
 
 const AboutUs = () => {
+  useEffect(() => {
+    const revealElements = document.querySelectorAll('.reveal');
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          } else {
+            entry.target.classList.remove('active');
+          }
+        });
+      },
+      { 
+        threshold: 0.15,
+        rootMargin: "0px 0px -50px 0px"
+      }
+    );
+
+    revealElements.forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => {
+      revealElements.forEach((el) => {
+        if (el) observer.unobserve(el);
+      });
+    };
+  }, []);
+
   return (
     <div className="about-page">
       {/* 1. Hero Section */}
