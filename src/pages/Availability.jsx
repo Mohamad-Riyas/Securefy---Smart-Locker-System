@@ -45,7 +45,7 @@ export default function AvailabilityUnique() {
     return () => unsubscribe();
   }, []);
 
-  // Filter lockers
+  
   const filteredLockers = lockers.filter(locker => {
     const matchesSearch = locker.lockerId?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || locker.status === statusFilter;
