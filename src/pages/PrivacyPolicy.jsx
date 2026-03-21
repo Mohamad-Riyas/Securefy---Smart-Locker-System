@@ -1,6 +1,36 @@
 import React, { useEffect } from 'react';
 import './PrivacyPolicy.css';
 const PrivacyPolicy = () => {
+  useEffect(() => {
+    const revealElements = document.querySelectorAll('.reveal');
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          } else {
+            entry.target.classList.remove('active');
+          }
+        });
+      },
+      {
+        threshold: 0.15,
+        rootMargin: "0px 0px -50px 0px"
+      }
+    );
+
+    revealElements.forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => {
+      revealElements.forEach((el) => {
+        if (el) observer.unobserve(el);
+      });
+    };
+  }, []);
+  
   return (
     <div className="privacy-page">
       {/* Hero Section */}
