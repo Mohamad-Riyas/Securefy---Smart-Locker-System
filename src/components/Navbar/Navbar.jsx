@@ -67,8 +67,8 @@ const Navibar = () => {
                     <li><Link to="/" className={navLinkClass('/')}>Home</Link></li>
                     <li><Link to="/book-locker" className={navLinkClass('/book-locker')}>Book Locker</Link></li>
                     <li><Link to="/availability" className={navLinkClass('/availability')}>Availability</Link></li>
-                    <li><Link to="/about-us" className={navLinkClass('/about-us')}>About Us</Link></li>
-                    <li><Link to="/privacy-policy" className={navLinkClass('/privacy-policy')}>Privacy Policy</Link></li>
+                    <li><Link to="/about-us" className={navLinkClass('/about-us')} onClick={() => window.scrollTo(0, 0)}>About Us</Link></li>
+                    <li><Link to="/privacy-policy" className={navLinkClass('/privacy-policy')} onClick={() => window.scrollTo(0, 0)}>Privacy Policy</Link></li>
                     {currentUser && (
                         <li><Link to="/my-qr-code" className={navLinkClass('/my-qr-code')}>My QR Code</Link></li>
                     )}
@@ -143,11 +143,17 @@ const Navibar = () => {
                         { to: '/book-locker', label: 'Book Locker' },
                         { to: '/availability', label: 'Availability' },
                         { to: '/about-us', label: 'About Us' },
+                        { to: '/privacy-policy', label: 'Privacy Policy' },
                     ].map(({ to, label }) => (
                         <li key={to}>
                             <Link
                                 to={to}
-                                onClick={closeMenu}
+                                onClick={() => {
+                                    closeMenu();
+                                    if (to === '/about-us' || to === '/privacy-policy') {
+                                        window.scrollTo(0, 0);
+                                    }
+                                }}
                                 className={`block py-3 px-4 rounded-lg transition-all duration-200 font-semibold text-[1.1rem] ${isActive(to) ? 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/20' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
                             >
                                 {label}
