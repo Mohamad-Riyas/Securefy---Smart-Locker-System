@@ -45,7 +45,7 @@ export default function AvailabilityUnique() {
     return () => unsubscribe();
   }, []);
 
-  // Filter lockers
+  
   const filteredLockers = lockers.filter(locker => {
     const matchesSearch = locker.lockerId?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || locker.status === statusFilter;
@@ -54,7 +54,7 @@ export default function AvailabilityUnique() {
     return matchesSearch && matchesStatus && matchesSize && matchesFloor;
   });
 
-  // Statistics
+  
   const stats = {
     total: lockers.length,
     available: lockers.filter(l => l.status === "available").length,
@@ -65,7 +65,6 @@ export default function AvailabilityUnique() {
 
   const availabilityRate = ((stats.available / stats.total) * 100).toFixed(1);
 
-  // Get status icon
   const getStatusIcon = (status) => {
     switch (status) {
       case "available":

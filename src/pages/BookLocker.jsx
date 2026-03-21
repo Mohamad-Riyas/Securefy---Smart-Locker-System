@@ -34,7 +34,7 @@ export default function BookLocker() {
         where("status", "==", "available")
       );
 
-      // Apply filters
+     
       if (filterSize !== "all") {
         q = query(q, where("size", "==", filterSize));
       }
@@ -45,7 +45,7 @@ export default function BookLocker() {
         ...doc.data()
       }));
 
-      // Apply location filter (client-side since Firestore doesn't support multiple where clauses on different fields)
+      
       if (filterLocation !== "all") {
         lockerList = lockerList.filter(l => l.location.includes(filterLocation));
       }

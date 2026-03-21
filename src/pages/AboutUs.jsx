@@ -26,9 +26,11 @@ const AboutUs = () => {
         {/* 3. The Problem Section */}
         <div className="content-box problem-section">
           <div className="problem-image">
-            <div className="placeholder-text">
-              [Illustrative Image: Challenges of traditional lockers like lost keys and manual tracking]
-            </div>
+            <img
+              src={lockerImg}
+              alt="Challenges of traditional lockers like lost keys and manual tracking"
+              className="problem-img"
+            />
           </div>
           <div className="problem-content">
             <h2>The Challenges We Solve</h2>

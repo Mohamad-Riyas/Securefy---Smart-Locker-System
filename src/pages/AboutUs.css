@@ -1,6 +1,4 @@
-/* AboutUs.css */
 
-/* DARK THEME VARIABLES */
 :root {
   --primary-blue: #7C8CFF;
   --accent-blue: #5850EC;
@@ -124,19 +122,15 @@
 /* IMAGE PLACEHOLDER */
 .problem-image {
   flex: 0.8;
+  width: 250px;
+  /* 👈 control size here */
+  aspect-ratio: 1/1;
   display: flex;
   justify-content: center;
   align-items: center;
   background: rgba(255, 255, 255, 0.03);
   border-radius: var(--border-radius);
-  aspect-ratio: 1/1;
   border: 1px dashed rgba(255, 255, 255, 0.1);
-}
-
-.placeholder-text {
-  color: var(--text-secondary);
-  text-align: center;
-  padding: 20px;
 }
 
 /* STRENGTHS SECTION */
