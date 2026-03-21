@@ -34,7 +34,7 @@ export default function BookLocker() {
         where("status", "==", "available")
       );
 
-      // Apply filters
+     
       if (filterSize !== "all") {
         q = query(q, where("size", "==", filterSize));
       }
