@@ -123,7 +123,6 @@
 .problem-image {
   flex: 0.8;
   width: 250px;
-  /* 👈 control size here */
   aspect-ratio: 1/1;
   display: flex;
   justify-content: center;
