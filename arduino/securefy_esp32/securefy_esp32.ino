@@ -64,6 +64,12 @@ const int HTTP_TIMEOUT_MS = 8000;
 // ─────────────────────────────────────────────
 WebServer espServer(80);
 
+
+// Non-blocking unlock state
+//  (replaced delay() with a timer so loop() keeps running)
+// ─────────────────────────────────────────────
+bool     unlocking    = false;
+unsigned long unlockStart = 0;
 // ============================================================
 //  FUNCTIONS
 // ============================================================
