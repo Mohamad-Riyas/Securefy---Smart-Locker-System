@@ -68,6 +68,7 @@ const Navibar = () => {
                     <li><Link to="/book-locker" className={navLinkClass('/book-locker')}>Book Locker</Link></li>
                     <li><Link to="/availability" className={navLinkClass('/availability')}>Availability</Link></li>
                     <li><Link to="/about-us" className={navLinkClass('/about-us')}>About Us</Link></li>
+                    <li><Link to="/privacy-policy" className={navLinkClass('/privacy-policy')}>Privacy Policy</Link></li>
                     {currentUser && (
                         <li><Link to="/my-qr-code" className={navLinkClass('/my-qr-code')}>My QR Code</Link></li>
                     )}
