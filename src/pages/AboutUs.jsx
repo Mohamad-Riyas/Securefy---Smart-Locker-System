@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import './AboutUs.css';
+import lockerImg from "../assets/locker-problem.jpg";
 import { FaQrcode, FaClock, FaSmile, FaShieldAlt, FaBuilding, FaCogs } from 'react-icons/fa';
 
 const AboutUs = () => {
