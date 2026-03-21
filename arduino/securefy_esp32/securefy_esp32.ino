@@ -262,10 +262,36 @@ void setup() {
 //  LOOP
 // ============================================================
 void loop() {
-  // Handle incoming web requests from QR scanner app
+  // ── BUG FIX #4 — Wi-Fi auto-reconnect ──
+  // Original code had no recovery if Wi-Fi dropped after setup().
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("[WIFI] Disconnected — reconnecting...");
+    WiFi.disconnect();
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    unsigned long start = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) {
+      delay(500);
+      Serial.print(".");
+    }
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("\n[WIFI] Reconnected! IP: " + WiFi.localIP().toString());
+    } else {
+      Serial.println("\n[WIFI] Reconnect failed — will retry next loop");
+    }
+    return;   // skip the rest this iteration while reconnecting
+  }
+
+  // Handle incoming HTTP requests from QR scanner
   espServer.handleClient();
 
-  // Send a heartbeat to backend every 60 seconds
+  // ── BUG FIX #1 — Close solenoid non-blocking ──
+  if (unlocking && (millis() - unlockStart >= UNLOCK_DURATION_MS)) {
+    digitalWrite(SOLENOID_PIN, RELAY_LOCK);
+    unlocking = false;
+    Serial.println("[RELAY] Solenoid off — LOCKED");
+  }
+
+  // Heartbeat every 60 seconds
   static unsigned long lastHeartbeat = 0;
   if (millis() - lastHeartbeat > 60000) {
     sendHeartbeat();
