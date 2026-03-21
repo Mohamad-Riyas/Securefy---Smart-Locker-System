@@ -1,1 +1,210 @@
-
+/* HelpCenter.css */
+/* DARK THEME VARIABLES */
+:root {
+  --primary-blue: #7C8CFF;
+  --accent-blue: #5850EC;
+  --dark-bg: #0f172a;
+  --dark-bg-secondary: #111c2d;
+  --card-bg: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --text-primary: #E5E7EB;
+  --text-secondary: #9CA3AF;
+  --border-radius: 16px;
+  --transition: all 0.3s ease;
+}
+/* PAGE BACKGROUND */
+.help-page {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #0b1120);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding-bottom: 100px;
+}
+/* HERO SECTION */
+.help-hero-section {
+  padding: 120px 20px 100px 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #111c2d, #0f172a);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 80px;
+}
+.help-hero-section .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 50px;
+  background: rgba(124, 140, 255, 0.1);
+  border: 1px solid rgba(124, 140, 255, 0.2);
+  color: var(--primary-blue);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+.help-hero-section h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: #fff;
+}
+.help-hero-section h1 span {
+  background: linear-gradient(90deg, #ffffff, #7C8CFF);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.help-hero-section .tagline {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  max-width: 750px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+/* CONTAINER */
+.help-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+/* CARDS GRID */
+.help-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+}
+.help-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  padding: 40px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--card-border);
+  transition: var(--transition);
+}
+.help-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(124, 140, 255, 0.4);
+}
+.help-icon-wrapper {
+  font-size: 2.2rem;
+  margin-bottom: 24px;
+  display: inline-block;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: var(--transition);
+}
+.help-card:hover .help-icon-wrapper {
+  background: rgba(124, 140, 255, 0.1);
+  border-color: rgba(124, 140, 255, 0.3);
+}
+.help-card h4 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+.help-card p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  font-size: 1.05rem;
+  margin-bottom: 24px;
+}
+.help-card button {
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: var(--transition);
+}
+.btn-primary-text {
+  color: var(--primary-blue);
+}
+.btn-primary-text:hover {
+  color: #fff;
+}
+/* CONTACT SECTION */
+.contact-box {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  padding: 60px 40px;
+  text-align: center;
+  transition: var(--transition);
+}
+.contact-box:hover {
+  border-color: rgba(124, 140, 255, 0.4);
+}
+.contact-box h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 16px;
+}
+.contact-box p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+.contact-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.contact-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-decoration: none;
+  transition: var(--transition);
+}
+.contact-btn.primary {
+  background: var(--primary-blue);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(124, 140, 255, 0.4);
+}
+.contact-btn.primary:hover {
+  background: var(--accent-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(124, 140, 255, 0.6);
+}
+.contact-btn.secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+.contact-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .help-hero-section h1 {
+    font-size: 2.5rem;
+  }
+  
+  .contact-actions {
+    flex-direction: column;
+  }
+  
+  .contact-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
