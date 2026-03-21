@@ -146,8 +146,7 @@ bool verifyWithBackend(String token) {
   HTTPClient http;
   String url = String(BACKEND_URL) + "/verifyQr";
   http.begin(url);
-  http.addHeader("Content-Type", "application/json");
-  http.addHeader("x-device-key", DEVICE_KEY);   // Backend checks this secret
+
 
   // Build JSON body:  { "token": "QR_...", "lockerId": "L001" }
   StaticJsonDocument<256> reqDoc;
