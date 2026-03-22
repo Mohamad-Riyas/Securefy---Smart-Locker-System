@@ -24,7 +24,7 @@ import { getFirestore, Timestamp } from "firebase-admin/firestore";
 const DEVICE_KEY = "securefy-device-key-2024";
 
 //  Port this server listens on
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // ─────────────────────────────────────────────
 //  FIREBASE ADMIN SETUP
@@ -37,9 +37,19 @@ const PORT = 5000;
 //    5. Add serviceAccountKey.json to your .gitignore  ← IMPORTANT!
 // ─────────────────────────────────────────────
 
-const serviceAccount = JSON.parse(
-  await readFile(new URL("./serviceAccountKey.json", import.meta.url))
-);
+let serviceAccount;
+try {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+  } else {
+    serviceAccount = JSON.parse(
+      await readFile(new URL("./serviceAccountKey.json", import.meta.url))
+    );
+  }
+} catch (err) {
+  console.error("[FATAL] Could not load serviceAccountKey.json or FIREBASE_SERVICE_ACCOUNT_JSON env variable.");
+  process.exit(1);
+}
 
 initializeApp({ credential: cert(serviceAccount) });
 const db = getFirestore();
