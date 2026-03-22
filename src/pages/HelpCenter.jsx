@@ -48,8 +48,8 @@ const HelpCenter = () => {
             <p>
               Having trouble? Browse our frequently asked questions about access control, expired tokens, and app issues.
             </p>
-            <button className="text-indigo-400 font-semibold hover:text-indigo-300 transition-colors">View FAQs →</button>
-          </motion.div>
+            <button className="btn-primary-text" style={{ color: '#818cf8' }}>View FAQs →</button>
+          </div>
 
         </div>
 
