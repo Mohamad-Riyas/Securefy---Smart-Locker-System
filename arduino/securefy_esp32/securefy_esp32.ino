@@ -35,7 +35,7 @@ const char* WIFI_PASSWORD = "1234567D"; // ← change this
 //    Mac/Linux → terminal → ifconfig
 //  Example: "http://192.168.1.45:5000"
 // ─────────────────────────────────────────────
-const char* BACKEND_URL = "http://192.168.62.224:5000"; // ← change this
+const char* BACKEND_URL = "http://172.20.10.3:5000"; // Updated to current PC IP
 
 // Must EXACTLY match DEVICE_KEY in server.js
 const char* DEVICE_KEY = "securefy-device-key-2024";
