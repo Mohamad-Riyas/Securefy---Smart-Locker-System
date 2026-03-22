@@ -66,7 +66,7 @@ const HelpCenter = () => {
 
           <div className="contact-actions">
             <a href="mailto:support@securefy.com" className="contact-btn primary">
-              <FaEnvelope /> Email Support
+              <FaEnvelope /> securefy@gmail.com
             </a>
             <a href="tel:+94763188347" className="contact-btn secondary">
               <FaPhoneAlt /> +94763188347
