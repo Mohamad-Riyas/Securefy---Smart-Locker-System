@@ -55,17 +55,11 @@ const HelpCenter = () => {
 
 
 
-        {/* --- CONTACT SECTION --- */}
+        {/* 3. Contact Section */}
+        <div className="contact-box">
+          <h3>Still need assistance?</h3>
+          <p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
-          className="bg-slate-900 border border-slate-700/60 rounded-3xl p-10 md:p-16 text-center relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none"></div>
-
-
-          <h3 className="text-3xl font-bold text-white mb-6">Still need assistance?</h3>
-          <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto font-light">
             Our enterprise support team is available 24/7 to help you resolve any issues with the Securefy platform.
           </p>
 
