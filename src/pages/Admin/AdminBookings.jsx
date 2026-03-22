@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebase";
-import { collection, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, updateDoc, doc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { toast } from "react-toastify";
-import { FaEdit, FaTrash, FaCheck } from "react-icons/fa";
+import { FaTrash, FaCheck, FaSearch, FaRegClock, FaCalendarAlt } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
 const AdminBookings = () => {
     const [bookings, setBookings] = useState([]);
@@ -11,26 +12,27 @@ const AdminBookings = () => {
 
     const bookingsCollectionRef = collection(db, "bookings");
 
-    const fetchBookings = async () => {
-        try {
-            const data = await getDocs(bookingsCollectionRef);
-            setBookings(data.docs.map((doc) => {
+    useEffect(() => {
+        const unsubscribe = onSnapshot(bookingsCollectionRef, (snapshot) => {
+            const bookingsList = snapshot.docs.map((doc) => {
                 const d = doc.data();
                 return {
                     ...d,
                     id: doc.id,
-                    // Format date for easier filtering and display
                     formattedDate: d.startTime && d.startTime.toDate ? d.startTime.toDate().toLocaleDateString() : 'N/A',
-                    isoDate: d.startTime && d.startTime.toDate ? d.startTime.toDate().toISOString().split('T')[0] : ''
+                    isoDate: d.startTime && d.startTime.toDate ? d.startTime.toDate().toISOString().split('T')[0] : '',
+                    timeMillis: d.startTime && d.startTime.toMillis ? d.startTime.toMillis() : Date.now()
                 };
-            }));
-        } catch (error) {
-            console.error("Error fetching bookings:", error);
-        }
-    };
+            });
+            // Sort by most recent first
+            bookingsList.sort((a, b) => b.timeMillis - a.timeMillis);
+            setBookings(bookingsList);
+        }, (error) => {
+            console.error("Error fetching operations logs:", error);
+            toast.error("Failed to connect to real-time telemetry");
+        });
 
-    useEffect(() => {
-        fetchBookings();
+        return () => unsubscribe();
     }, []);
 
     const updateStatus = async (id, status) => {
@@ -38,19 +40,17 @@ const AdminBookings = () => {
             const bookingDoc = doc(db, "bookings", id);
             await updateDoc(bookingDoc, { status: status });
             toast.success(`Booking marked as ${status}`);
-            fetchBookings();
         } catch (error) {
             toast.error("Error updating status: " + error.message);
         }
     };
 
     const deleteBooking = async (id) => {
-        if (window.confirm("Are you sure you want to delete this booking?")) {
+        if (window.confirm("Are you sure you want to completely erase this record?")) {
             try {
                 const bookingDoc = doc(db, "bookings", id);
                 await deleteDoc(bookingDoc);
                 toast.success("Booking deleted successfully");
-                fetchBookings();
             } catch (error) {
                 toast.error("Error deleting booking: " + error.message);
             }
@@ -70,113 +70,141 @@ const AdminBookings = () => {
     });
 
     return (
-        <div className="container-fluid p-0">
-            <h1 className="section-header">Booking Management</h1>
-
-            <div className="row mb-4">
-                <div className="col-md-9">
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Search by User, Locker ID or Status..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{
-                            background: "#0f172a",
-                            border: "1px solid #334155",
-                            color: "#f8fafc",
-                            padding: "10px 15px",
-                            borderRadius: "8px"
-                        }}
-                    />
+        <div className="relative min-h-[90vh] w-full flex flex-col pt-4">
+            
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end mb-8 relative z-10 w-full gap-4">
+                <div>
+                    <h1 className="text-3xl font-extrabold text-slate-100 tracking-tight">Operation Logs</h1>
+                    <p className="text-slate-400 mt-1">Monitor distributed network allocations and reservation history.</p>
                 </div>
-                <div className="col-md-3">
-                    <input
-                        type="date"
-                        className="form-control"
-                        value={dateFilter}
-                        onChange={(e) => setDateFilter(e.target.value)}
-                        style={{
-                            background: "#0f172a",
-                            border: "1px solid #334155",
-                            color: "#94a3b8", // Placeholder text color often needs check
-                            padding: "10px 15px",
-                            borderRadius: "8px"
-                        }}
-                    />
+                
+                <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                    <div className="relative w-full sm:w-64 group">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                            <FaSearch />
+                        </div>
+                        <input
+                            type="text"
+                            className="w-full bg-slate-900/60 backdrop-blur-md border border-slate-700 focus:border-indigo-500 text-slate-200 pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-lg transition-all"
+                            placeholder="Search User, Node ID..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="relative w-full sm:w-48 group">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                            <FaCalendarAlt />
+                        </div>
+                        <input
+                            type="date"
+                            className="w-full bg-slate-900/60 backdrop-blur-md border border-slate-700 focus:border-indigo-500 text-slate-200 pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-lg transition-all appearance-none custom-date-input"
+                            value={dateFilter}
+                            onChange={(e) => setDateFilter(e.target.value)}
+                        />
+                    </div>
                 </div>
             </div>
 
-            <div className="stat-card-aura" style={{ padding: '0', overflow: 'hidden', minHeight: '400px' }}>
-                <div className="table-responsive">
-                    <table className="table mb-0" style={{ color: '#94a3b8' }}>
-                        <thead style={{ background: 'rgba(255,255,255,0.05)', color: '#f8fafc', borderBottom: '1px solid #334155' }}>
-                            <tr>
-                                <th style={{ padding: '16px 24px', fontWeight: '600', border: 'none' }}>User</th>
-                                <th style={{ padding: '16px 24px', fontWeight: '600', border: 'none' }}>Locker ID</th>
-                                <th style={{ padding: '16px 24px', fontWeight: '600', border: 'none' }}>Date</th>
-                                <th style={{ padding: '16px 24px', fontWeight: '600', border: 'none' }}>Status</th>
-                                <th style={{ padding: '16px 24px', fontWeight: '600', border: 'none' }}>Actions</th>
+            <div className="flex-1 bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-2xl relative overflow-hidden">
+                <div className="absolute inset-x-0 h-px top-0 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
+                
+                <div className="overflow-x-auto w-full">
+                    <table className="w-full whitespace-nowrap">
+                        <thead>
+                            <tr className="bg-slate-900/40 text-left text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                                <th className="px-6 py-5 font-semibold">User Identity</th>
+                                <th className="px-6 py-5 font-semibold">Node ID</th>
+                                <th className="px-6 py-5 font-semibold">Timestamp</th>
+                                <th className="px-6 py-5 font-semibold">Status</th>
+                                <th className="px-6 py-5 font-semibold text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {filteredBookings.map((booking) => (
-                                <tr key={booking.id} style={{ borderBottom: '1px solid #334155', transition: 'background 0.2s' }}>
-                                    <td style={{ padding: '16px 24px', verticalAlign: 'middle', border: 'none', color: '#f8fafc', fontWeight: '500' }}>
-                                        {booking.userName || booking.userId}
-                                    </td>
-                                    <td style={{ padding: '16px 24px', verticalAlign: 'middle', border: 'none' }}>
-                                        <div style={{
-                                            background: 'rgba(99, 102, 241, 0.1)',
-                                            color: '#818cf8',
-                                            display: 'inline-block',
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            fontSize: '0.85rem',
-                                            fontWeight: '600'
-                                        }}>
-                                            {booking.lockerId}
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '16px 24px', verticalAlign: 'middle', border: 'none' }}>{booking.formattedDate}</td>
-                                    <td style={{ padding: '16px 24px', verticalAlign: 'middle', border: 'none' }}>
-                                        <span className="badge" style={{
-                                            background: booking.status === 'active' ? 'rgba(16, 185, 129, 0.1)' : booking.status === 'completed' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(148, 163, 184, 0.1)',
-                                            color: booking.status === 'active' ? '#10b981' : booking.status === 'completed' ? '#818cf8' : '#94a3b8',
-                                            border: `1px solid ${booking.status === 'active' ? 'rgba(16, 185, 129, 0.2)' : booking.status === 'completed' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(148, 163, 184, 0.2)'}`,
-                                            padding: '6px 12px',
-                                            borderRadius: '20px',
-                                            fontWeight: '500'
-                                        }}>
-                                            {booking.status}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '16px 24px', verticalAlign: 'middle', border: 'none' }}>
-                                        {booking.status !== 'completed' && (
-                                            <button
-                                                className="btn btn-sm me-2"
-                                                onClick={() => updateStatus(booking.id, 'completed')}
-                                                style={{ background: 'transparent', border: '1px solid #10b981', color: '#10b981' }}
-                                                title="Mark Complete"
+                        <tbody className="divide-y divide-slate-800/50 text-sm">
+                            <AnimatePresence>
+                                {filteredBookings.map((booking, index) => (
+                                    <motion.tr 
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ delay: index * 0.05 }}
+                                        key={booking.id} 
+                                        className="hover:bg-slate-800/30 transition-colors group"
+                                    >
+                                        <td className="px-6 py-5 text-slate-200 font-medium">
+                                            {booking.userName || booking.userId}
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className="inline-flex items-center gap-2 font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-md">
+                                                {booking.lockerId}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5 text-slate-400">
+                                            <span className="flex items-center gap-2">
+                                                <FaRegClock className="text-slate-500" />
+                                                {booking.formattedDate}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                                booking.status === 'active' 
+                                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]' 
+                                                : booking.status === 'completed'
+                                                ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                                                : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+                                            }`}>
+                                                {booking.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5 text-right flex justify-end gap-3 opacity-80 group-hover:opacity-100 transition-opacity">
+                                            {booking.status !== 'completed' && (
+                                                <motion.button 
+                                                    whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} 
+                                                    className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-colors border border-emerald-500/20 cursor-pointer"
+                                                    onClick={() => updateStatus(booking.id, 'completed')}
+                                                    title="Mark Complete"
+                                                >
+                                                    <FaCheck />
+                                                </motion.button>
+                                            )}
+                                            
+                                            <motion.button 
+                                                whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} 
+                                                className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/50 transition-colors border border-slate-700 cursor-pointer"
+                                                onClick={() => deleteBooking(booking.id)}
+                                                title="Delete Record"
                                             >
-                                                <FaCheck />
-                                            </button>
-                                        )}
-                                        <button
-                                            className="btn btn-sm"
-                                            onClick={() => deleteBooking(booking.id)}
-                                            style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444' }}
-                                            title="Delete Booking"
-                                        >
-                                            <FaTrash />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
+                                                <FaTrash />
+                                            </motion.button>
+                                        </td>
+                                    </motion.tr>
+                                ))}
+                            </AnimatePresence>
                         </tbody>
                     </table>
+                    
+                    {filteredBookings.length === 0 && (
+                        <div className="p-16 text-center text-slate-500 flex flex-col items-center gap-4">
+                            <div className="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center border border-slate-700">
+                                <FaSearch className="text-2xl text-slate-600" />
+                            </div>
+                            <p className="text-lg">No telemetry data matching your query criteria.</p>
+                        </div>
+                    )}
                 </div>
             </div>
+            
+            {/* Custom CSS for hiding default dark mode calendar icon on some browsers if needed */}
+            <style jsx>{`
+                .custom-date-input::-webkit-calendar-picker-indicator {
+                    filter: invert(1);
+                    opacity: 0.5;
+                    cursor: pointer;
+                }
+                .custom-date-input::-webkit-calendar-picker-indicator:hover {
+                    opacity: 1;
+                }
+            `}</style>
         </div>
     );
 };
