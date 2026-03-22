@@ -1,6 +1,6 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { FaEnvelope, FaPhoneAlt, FaQuestionCircle, FaBook } from "react-icons/fa";
+import React from 'react';
+import './HelpCenter.css';
+import { FaEnvelope, FaPhoneAlt, FaQuestionCircle, FaBook } from 'react-icons/fa';
 
 
 
