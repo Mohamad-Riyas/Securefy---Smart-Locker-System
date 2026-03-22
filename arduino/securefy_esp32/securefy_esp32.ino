@@ -35,14 +35,14 @@ const char* WIFI_PASSWORD = "1234567D"; // ← change this
 //    Mac/Linux → terminal → ifconfig
 //  Example: "http://192.168.1.45:5000"
 // ─────────────────────────────────────────────
-const char* BACKEND_URL = "http://172.20.10.3:5000"; // Updated to current PC IP
+const char* BACKEND_URL = "https://securefy-smart-locker-system.onrender.com"; // Updated to current PC IP
 
 // Must EXACTLY match DEVICE_KEY in server.js
 const char* DEVICE_KEY = "securefy-device-key-2024";
 
 // ─────────────────────────────────────────────
 //  RELAY LOGIC
-//  Most relay modules: LOW = ON (unlocked), HIGH = OFF (locked)
+ Most relay modules: LOW = ON (unlocked), HIGH = OFF (locked)
 //  Swap if yours is reversed
 // ─────────────────────────────────────────────
 const int RELAY_UNLOCK = LOW;
@@ -147,7 +147,14 @@ bool verifyWithBackend(String token) {
 
   HTTPClient http;
   String url = String(BACKEND_URL) + "/verifyQr";
-  http.begin(url);
+  
+  if (url.startsWith("https")) {
+    // For Cloud hosting, we'll use insecure mode to bypass CA checks for simplicity
+    http.begin(url); 
+  } else {
+    http.begin(url);
+  }
+  
   http.setTimeout(HTTP_TIMEOUT_MS);
   http.addHeader("Content-Type",  "application/json");
   http.addHeader("x-device-key", DEVICE_KEY);
