@@ -69,6 +69,7 @@ const Navibar = () => {
                     <li><Link to="/availability" className={navLinkClass('/availability')}>Availability</Link></li>
                     <li><Link to="/about-us" className={navLinkClass('/about-us')} onClick={() => window.scrollTo(0, 0)}>About Us</Link></li>
                     <li><Link to="/privacy-policy" className={navLinkClass('/privacy-policy')} onClick={() => window.scrollTo(0, 0)}>Privacy Policy</Link></li>
+                    <li><Link to="/help-center" className={navLinkClass('/help-center')}>Help Center</Link></li>
                     {currentUser && (
                         <li><Link to="/my-qr-code" className={navLinkClass('/my-qr-code')}>My QR Code</Link></li>
                     )}
@@ -144,6 +145,7 @@ const Navibar = () => {
                         { to: '/availability', label: 'Availability' },
                         { to: '/about-us', label: 'About Us' },
                         { to: '/privacy-policy', label: 'Privacy Policy' },
+                        { to: '/help-center', label: 'Help Center' },
                     ].map(({ to, label }) => (
                         <li key={to}>
                             <Link
