@@ -40,12 +40,9 @@ const HelpCenter = () => {
 
 
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-slate-800/80 border border-slate-700/80 p-10 rounded-3xl shadow-lg hover:border-indigo-400/50 hover:bg-slate-800 hover:shadow-[0_10px_30px_rgba(99,102,241,0.2)] transition-all duration-300 group backdrop-blur-sm"
-          >
-            <div className="w-16 h-16 bg-slate-900 group-hover:bg-indigo-600/20 border border-slate-700 group-hover:border-indigo-500/50 rounded-2xl flex items-center justify-center text-indigo-400 mb-8 transition-colors duration-300">
-              <FaQuestionCircle className="text-3xl drop-shadow-[0_0_10px_rgba(129,140,248,0.5)]" />
+          <div className="help-card">
+            <div className="help-icon-wrapper" style={{ color: '#818cf8' }}>
+              <FaQuestionCircle />
             </div>
             <h4 className="text-2xl font-bold text-slate-100 mb-4">FAQs</h4>
             <p className="text-slate-300 text-lg leading-relaxed font-light mb-6">
