@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../../firebase";
-import { collection, getDocs, writeBatch, doc } from "firebase/firestore";
+import { collection, getDocs, writeBatch, doc, onSnapshot } from "firebase/firestore";
 import {
     AreaChart,
     Area,
@@ -10,8 +10,11 @@ import {
     Tooltip,
     ResponsiveContainer
 } from "recharts";
-import { FaBatteryFull, FaBolt, FaThermometerHalf, FaWifi, FaExclamationTriangle } from "react-icons/fa";
+import { FaBolt, FaExclamationTriangle, FaCheckCircle, FaLockOpen } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
+import { Canvas } from "@react-three/fiber";
+import { Stars, Float, PerspectiveCamera } from "@react-three/drei";
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState({
@@ -19,10 +22,11 @@ const AdminDashboard = () => {
         availableLockers: 0,
         bookedLockers: 0,
         maintenanceLockers: 0,
-        dailyDiff: "+12%" // Mock data
+        dailyDiff: "+12%"
     });
     const [lockerGrid, setLockerGrid] = useState([]);
     const [recentLogs, setRecentLogs] = useState([]);
+    const [chartData, setChartData] = useState([]);
 
     const handleEmergencyUnlock = async () => {
         if (window.confirm("⚠️ EMERGENCY OVERRIDE ⚠️\n\nAre you sure you want to UNLOCK ALL LOCKERS?\nThis will clear all current bookings and open all doors.")) {
@@ -36,7 +40,6 @@ const AdminDashboard = () => {
 
                 await batch.commit();
                 toast.success("🚨 EMERGENCY UNLOCK SUCCESSFUL: All lockers opened");
-                // Refresh to show updates
                 setTimeout(() => window.location.reload(), 1500);
             } catch (error) {
                 console.error("Error upgrading lockers:", error);
@@ -46,262 +49,304 @@ const AdminDashboard = () => {
     };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const lockersSnapshot = await getDocs(collection(db, "lockers"));
-                const lockersDocs = lockersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const unsubscribeLockers = onSnapshot(collection(db, "lockers"), (lockersSnapshot) => {
+            const lockersDocs = lockersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                const total = lockersDocs.length;
-                const available = lockersDocs.filter(l => l.status === "available").length;
-                const booked = lockersDocs.filter(l => l.status === "booked").length;
-                const maintenance = lockersDocs.filter(l => l.status === "maintenance").length;
+            const total = lockersDocs.length;
+            const available = lockersDocs.filter(l => l.status === "available" || !l.status).length;
+            const booked = lockersDocs.filter(l => l.status === "booked" || l.status === "reserved" || l.status === "occupied").length;
+            const maintenance = lockersDocs.filter(l => l.status === "maintenance").length;
 
-                // Fetch Recent Bookings for Logs
-                const bookingsSnapshot = await getDocs(collection(db, "bookings"));
-                let logs = [];
-                bookingsSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    // Add booking to logs
-                    if (logs.length < 5) {
-                        logs.push({
-                            id: doc.id,
-                            message: `Locker ${data.lockerId || 'Unknown'} booked`,
-                            time: data.startTime && data.startTime.toDate ? data.startTime.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now',
-                            type: 'success'
-                        });
+            setStats(prev => ({
+                ...prev,
+                totalLockers: total,
+                availableLockers: available,
+                bookedLockers: booked,
+                maintenanceLockers: maintenance
+            }));
+
+            setLockerGrid(lockersDocs);
+        });
+
+        const unsubscribeBookings = onSnapshot(collection(db, "bookings"), (bookingsSnapshot) => {
+            const groupedHours = [
+                { time: "00:00", volume: 0 }, { time: "03:00", volume: 0 }, { time: "06:00", volume: 0 },
+                { time: "09:00", volume: 0 }, { time: "12:00", volume: 0 }, { time: "15:00", volume: 0 },
+                { time: "18:00", volume: 0 }, { time: "21:00", volume: 0 }
+            ];
+            
+            let allLogs = [];
+
+            bookingsSnapshot.forEach(doc => {
+                const data = doc.data();
+                
+                if (data.startTime && data.startTime.toDate) {
+                    const hour = data.startTime.toDate().getHours();
+                    const groupIndex = Math.floor(hour / 3);
+                    if (groupIndex >= 0 && groupIndex <= 7) {
+                        groupedHours[groupIndex].volume += 1;
                     }
-                });
-
-                if (maintenance > 0) {
-                    logs.unshift({
-                        id: 'maintenance-alert',
-                        message: `${maintenance} lockers require service`,
-                        time: 'Urgent',
-                        type: 'danger'
-                    });
                 }
 
-                setStats({
-                    totalLockers: total,
-                    availableLockers: available,
-                    bookedLockers: booked,
-                    maintenanceLockers: maintenance,
-                    dailyDiff: "+8.5%"
+                allLogs.push({
+                    id: doc.id,
+                    message: `${data.userName || data.userEmail || 'A user'} booked Node ${data.lockerId || 'Unknown'}`,
+                    time: data.startTime && data.startTime.toDate ? data.startTime.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now',
+                    timeMillis: data.startTime && data.startTime.toMillis ? data.startTime.toMillis() : Date.now(),
+                    type: 'success'
                 });
+            });
+            
+            setChartData(groupedHours);
 
-                setLockerGrid(lockersDocs); // Store for grid visualization
-                setRecentLogs(logs);
+            // Sort logs by newest first and take top 5
+            allLogs.sort((a,b) => b.timeMillis - a.timeMillis);
+            setRecentLogs(allLogs.slice(0, 5));
+        });
 
-            } catch (error) {
-                console.error("Error fetching dashboard data:", error);
-            }
+        return () => {
+            unsubscribeLockers();
+            unsubscribeBookings();
         };
-
-        fetchData();
     }, []);
 
-    // Mock Data for "Hourly Pickup Volume" Chart
-    const chartData = [
-        { time: "06:00", volume: 12 },
-        { time: "09:00", volume: 45 },
-        { time: "12:00", volume: 89 },
-        { time: "15:00", volume: 64 },
-        { time: "18:00", volume: 112 },
-        { time: "21:00", volume: 34 },
-    ];
+
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1 }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+    };
 
     return (
-        <div className="container-fluid p-0">
-            <h1 className="section-header">Dashboard</h1>
+        <div className="relative min-h-full w-full">
+            
+            {/* 3D Background Canvas */}
+            <div className="absolute inset-0 -z-10 rounded-2xl overflow-hidden pointer-events-none opacity-40">
+                <Canvas>
+                    <PerspectiveCamera makeDefault position={[0, 0, 5]} />
+                    <Stars radius={50} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
+                    <ambientLight intensity={0.5} />
+                    <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
+                        <mesh position={[2, 0, -2]}>
+                            <octahedronGeometry args={[1, 0]} />
+                            <meshStandardMaterial color="#6366f1" wireframe emissive="#6366f1" emissiveIntensity={0.5} />
+                        </mesh>
+                    </Float>
+                    <Float speed={1.5} rotationIntensity={0.8} floatIntensity={2}>
+                        <mesh position={[-3, 1, -5]}>
+                            <icosahedronGeometry args={[1.5, 0]} />
+                            <meshStandardMaterial color="#34d399" wireframe emissive="#10b981" emissiveIntensity={0.2} opacity={0.5} transparent />
+                        </mesh>
+                    </Float>
+                </Canvas>
+            </div>
 
-            {/* BENTO GRID LAYOUT */}
-            <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
+            <div className="flex justify-between items-end mb-8 relative z-10">
+                <div>
+                    <h1 className="text-3xl font-extrabold text-slate-100 tracking-tight">System Matrix</h1>
+                    <p className="text-slate-400 mt-1">Real-time telemetry and overview.</p>
+                </div>
+                <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-medium shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></div>
+                    System Online
+                </div>
+            </div>
 
-                {/* 1. PRIMARY STAT: Total Lockers (Large) */}
-                <div className="stat-card-aura" style={{ gridColumn: 'span 2' }}>
+            {/* BENTO GRID */}
+            <motion.div 
+                variants={containerVariants} 
+                initial="hidden" 
+                animate="show" 
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10"
+            >
+                {/* 1. PRIMARY: Total Lockers */}
+                <motion.div variants={itemVariants} className="col-span-1 lg:col-span-2 bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/20 blur-3xl rounded-full group-hover:bg-indigo-500/30 transition-colors"></div>
                     <div>
-                        <div className="stat-label">Total Lockers</div>
-                        <div className="stat-value" style={{ color: '#f8fafc' }}>{stats.totalLockers}</div>
-                        <div className="stat-subtext" style={{ color: '#10B981' }}>
+                        <div className="text-slate-400 text-sm font-semibold uppercase tracking-wider">Total Lockers</div>
+                        <div className="text-5xl font-black text-slate-100 mt-2">{stats.totalLockers}</div>
+                        <div className="text-emerald-400 font-medium mt-1 drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]">
                             {stats.availableLockers} Currently Available
                         </div>
                     </div>
-                    <div style={{ marginTop: '20px', height: '120px' }}>
-                        {/* Mini Sparkline Area Chart */}
+                    <div className="mt-6 h-28 -mx-4">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={chartData}>
                                 <defs>
-                                    <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                    <linearGradient id="colorVolumeSmall" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#818cf8" stopOpacity={0.4} />
+                                        <stop offset="95%" stopColor="#818cf8" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <Area type="monotone" dataKey="volume" stroke="#6366f1" fillOpacity={1} fill="url(#colorVolume)" strokeWidth={2} />
+                                <Area type="monotone" dataKey="volume" stroke="#818cf8" fillOpacity={1} fill="url(#colorVolumeSmall)" strokeWidth={2} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* 2. EMERGENCY CONTROL: Unlock All (Square) */}
-                <div className="stat-card-aura" style={{ background: 'rgba(239, 68, 68, 0.05)', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
-                    <div className="stat-label" style={{ color: '#ef4444' }}>Emergency Control</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '12px' }}>
-                        <div style={{
-                            width: '48px',
-                            height: '48px',
-                            borderRadius: '50%',
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#ef4444',
-                            fontSize: '1.5rem',
-                            animation: 'pulse 2s infinite'
-                        }}>
-                            <FaExclamationTriangle />
+                {/* 2. EMERGENCY CONTROL */}
+                <motion.div variants={itemVariants} className="bg-rose-950/30 backdrop-blur-xl border border-rose-900/50 rounded-3xl p-6 shadow-2xl flex flex-col justify-between group overflow-hidden relative">
+                    <div className="absolute inset-0 bg-rose-500/5 rotate-45 scale-150 transform transition-transform group-hover:rotate-90 duration-1000"></div>
+                    <div className="relative z-10 flex items-center gap-3 text-rose-500">
+                        <FaExclamationTriangle className="animate-pulse" />
+                        <span className="text-sm font-semibold uppercase tracking-wider">Emergency</span>
+                    </div>
+                    <div className="relative z-10 flex flex-col items-center mt-4 gap-4">
+                        <div className="w-16 h-16 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(244,63,94,0.4)] group-hover:scale-110 transition-transform">
+                            <FaLockOpen />
                         </div>
                         <button
-                            className="btn btn-danger w-100 fw-bold"
-                            style={{ background: '#ef4444', border: 'none', boxShadow: '0 0 15px rgba(239, 68, 68, 0.4)' }}
+                            className="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl shadow-[0_0_15px_rgba(225,29,72,0.5)] transition-all active:scale-95"
                             onClick={handleEmergencyUnlock}
                         >
-                            UNLOCK ALL LOCKERS
+                            UNLOCK ALL
                         </button>
-                        <div className="small text-center" style={{ color: '#fca5a5', fontSize: '0.7rem' }}>
-                            *Forces all doors open immediately
-                        </div>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* 3. TERTIARY STAT: Live Occupancy (Square) */}
-                <div className="stat-card-aura">
-                    <div className="stat-label">Live Occupancy</div>
-                    <div className="stat-value" style={{ color: '#f8fafc' }}>{stats.bookedLockers} / {stats.totalLockers}</div>
-                    <div className="progress mt-3" style={{ height: '6px', backgroundColor: '#334155' }}>
-                        <div
-                            className="progress-bar"
-                            role="progressbar"
-                            style={{
-                                width: `${(stats.bookedLockers / stats.totalLockers) * 100}%`,
-                                backgroundColor: '#6366f1',
-                                boxShadow: '0 0 10px rgba(99, 102, 241, 0.5)'
-                            }}
-                        />
+                {/* 3. TERTIARY: Live Occupancy */}
+                <motion.div variants={itemVariants} className="bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 shadow-2xl">
+                    <div className="text-slate-400 text-sm font-semibold uppercase tracking-wider">Live Occupancy</div>
+                    <div className="text-4xl font-black text-slate-100 mt-4">{stats.bookedLockers} <span className="text-2xl text-slate-500">/ {stats.totalLockers}</span></div>
+                    
+                    <div className="w-full bg-slate-800 rounded-full h-2.5 mt-6 overflow-hidden">
+                        <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(stats.bookedLockers / (stats.totalLockers || 1)) * 100}%` }}
+                            transition={{ duration: 1.5, delay: 0.5, type: 'spring' }}
+                            className="bg-indigo-500 h-2.5 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)]"
+                        ></motion.div>
                     </div>
-                    <div className="stat-subtext mt-2" style={{ color: '#94a3b8' }}>
-                        {Math.round((stats.bookedLockers / stats.totalLockers) * 100) || 0}% Utilization
+                    <div className="text-slate-500 text-sm mt-3 font-medium">
+                        {Math.round((stats.bookedLockers / (stats.totalLockers || 1)) * 100) || 0}% Utilization
                     </div>
-                </div>
+                </motion.div>
 
-                {/* 4. VISUAL ANALYTICS: Hourly Pickup Volume (Wide) */}
-                <div className="stat-card-aura" style={{ gridColumn: 'span 3', minHeight: '300px' }}>
-                    <div className="d-flex justify-content-between align-items-center mb-4">
-                        <div className="stat-label">Hourly Pickup Volume</div>
-                        <select className="form-select form-select-sm" style={{ width: 'auto', border: '1px solid #334155', background: '#0f172a', color: '#94a3b8' }}>
+                {/* 4. VISUAL ANALYTICS */}
+                <motion.div variants={itemVariants} className="col-span-1 lg:col-span-3 bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 shadow-2xl min-h-[300px]">
+                    <div className="flex justify-between items-center mb-6">
+                        <div className="text-slate-400 text-sm font-semibold uppercase tracking-wider">Hourly Pickup Volume</div>
+                        <select className="bg-slate-950 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block px-3 py-1.5 outline-none">
                             <option>Today</option>
                             <option>Yesterday</option>
                         </select>
                     </div>
-                    <ResponsiveContainer width="100%" height={220}>
-                        <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                            <defs>
-                                <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
-                                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                            <CartesianGrid vertical={false} stroke="#334155" strokeDasharray="3 3" />
-                            <Tooltip
-                                contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#f8fafc' }}
-                                itemStyle={{ color: '#f8fafc' }}
-                                cursor={{ stroke: '#6366f1', strokeWidth: 1 }}
-                            />
-                            <Area type="monotone" dataKey="volume" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorGradient)" />
-                        </AreaChart>
-                    </ResponsiveContainer>
-                </div>
-
-                {/* 5. ALERTS SIDEBAR (Tall) */}
-                <div className="stat-card-aura" style={{ gridRow: 'span 2' }}>
-                    <div className="stat-label">Activity Feed</div>
-                    <div className="mt-3">
-                        {recentLogs.length > 0 ? recentLogs.map((log, i) => (
-                            <div key={i} className="feed-item d-flex gap-3 align-items-start mb-3" style={{ borderBottomColor: '#334155' }}>
-                                <div className={`status-dot dot-${log.type === 'danger' ? 'red' : log.type === 'warning' ? 'amber' : 'green'} mt-1`}></div>
-                                <div>
-                                    <div style={{ fontSize: '0.85rem', fontWeight: 500, color: '#e2e8f0' }}>{log.message}</div>
-                                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{log.time}</div>
-                                </div>
-                            </div>
-                        )) : (
-                            <div className="text-muted small">No recent activity</div>
-                        )}
-
-                        <div className="mt-4 pt-3 border-top" style={{ borderColor: '#334155' }}>
-                            <div className="stat-label mb-2">Maintenance Queue</div>
-                            {stats.maintenanceLockers > 0 ? (
-                                <div className="alert alert-warning py-2 px-3 small border-0" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
-                                    <FaBolt className="me-2" />
-                                    {stats.maintenanceLockers} devices offline
-                                </div>
-                            ) : (
-                                <div className="d-flex align-items-center text-success small">
-                                    <FaCheckCircle className="me-2" /> All systems normal
-                                </div>
-                            )}
-                        </div>
+                    <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                <defs>
+                                    <linearGradient id="colorGradientMain" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                                <CartesianGrid vertical={false} stroke="#1e293b" strokeDasharray="4 4" />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px', color: '#f8fafc', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
+                                    itemStyle={{ color: '#818cf8', fontWeight: 'bold' }}
+                                    cursor={{ stroke: '#4f46e5', strokeWidth: 2, strokeDasharray: '4 4' }}
+                                />
+                                <Area type="monotone" dataKey="volume" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorGradientMain)" />
+                            </AreaChart>
+                        </ResponsiveContainer>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* 6. LOCKER STATUS GRID (Wide) */}
-                <div className="stat-card-aura" style={{ gridColumn: 'span 3' }}>
-                    <div className="stat-label mb-3">Locker Matrix Status</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', gap: '8px' }}>
-                        {lockerGrid.map(locker => (
-                            <div
+                {/* 5. ALERTS SIDEBAR */}
+                <motion.div variants={itemVariants} className="col-span-1 lg:col-span-1 row-span-1 lg:row-span-2 bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col">
+                    <div className="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-6">Activity Feed</div>
+                    <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4">
+                        {recentLogs.length > 0 ? recentLogs.map((log, i) => (
+                            <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} key={i} className="flex gap-4 items-start pb-4 border-b border-slate-800/50 last:border-0 hover:bg-slate-800/30 p-2 rounded-xl transition-colors">
+                                <div className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 animate-pulse ${log.type === 'danger' ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]' : log.type === 'warning' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]' : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]'}`}></div>
+                                <div>
+                                    <div className="text-sm font-medium text-slate-200">{log.message}</div>
+                                    <div className="text-xs text-slate-500 mt-1">{log.time}</div>
+                                </div>
+                            </motion.div>
+                        )) : (
+                            <div className="text-slate-500 text-sm text-center py-4">No recent activity</div>
+                        )}
+                    </div>
+
+                    <div className="mt-6 pt-6 border-t border-slate-800">
+                        <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">Maintenance Queue</div>
+                        {stats.maintenanceLockers > 0 ? (
+                            <div className="bg-amber-900/20 border border-amber-900/50 text-amber-500 py-3 px-4 rounded-xl text-sm flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <FaBolt />
+                                    <span>Devices Offline</span>
+                                </div>
+                                <span className="font-bold">{stats.maintenanceLockers}</span>
+                            </div>
+                        ) : (
+                            <div className="bg-emerald-900/10 border border-emerald-900/30 text-emerald-500 py-3 px-4 rounded-xl text-sm flex items-center gap-2">
+                                <FaCheckCircle /> All systems optimal
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+
+                {/* 6. LOCKER STATUS GRID */}
+                <motion.div variants={itemVariants} className="col-span-1 lg:col-span-3 bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 shadow-2xl">
+                    <div className="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-6">Locker Matrix View</div>
+                    
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-3">
+                        {lockerGrid.map((locker, i) => (
+                            <motion.div
                                 key={locker.id}
+                                initial={{ opacity: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: i * 0.02 }}
+                                whileHover={{ scale: 1.1, translateY: -2 }}
                                 title={`Locker ${locker.lockerId} - ${locker.status}`}
-                                style={{
-                                    aspectRatio: '1',
-                                    backgroundColor: locker.status === 'booked' ? '#6366f1' : locker.status === 'maintenance' ? '#F59E0B' : 'rgba(255,255,255,0.05)',
-                                    borderRadius: '6px',
-                                    border: locker.status === 'available' ? '1px solid #334155' : 'none',
-                                    boxShadow: locker.status === 'booked' ? '0 0 10px rgba(99, 102, 241, 0.4)' : 'none',
-                                    display: 'grid',
-                                    placeItems: 'center',
-                                    color: locker.status === 'booked' ? 'white' : '#94a3b8',
-                                    fontSize: '0.65rem',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer',
-                                    transition: 'transform 0.2s'
-                                }}
-                                className="locker-cell"
+                                className={`
+                                    relative aspect-square rounded-xl flex items-center justify-center text-xs font-black cursor-pointer shadow-lg
+                                    ${locker.status === 'booked' 
+                                        ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)] border border-indigo-400' 
+                                        : locker.status === 'maintenance' 
+                                        ? 'bg-amber-500 bg-opacity-20 text-amber-500 border border-amber-500/50' 
+                                        : 'bg-slate-800 text-slate-500 border border-slate-700 hover:bg-slate-700'
+                                    }
+                                `}
                             >
                                 {locker.lockerId}
-                            </div>
+                                {locker.status === 'booked' && (
+                                    <div className="absolute inset-0 bg-white opacity-20 rounded-xl animate-ping" style={{ animationDuration: '3s' }}></div>
+                                )}
+                            </motion.div>
                         ))}
                     </div>
 
-                    <div className="d-flex gap-4 mt-3 small" style={{ color: '#94a3b8' }}>
-                        <div className="d-flex align-items-center"><span className="status-dot me-2" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #334155', width: '12px', height: '12px' }}></span> Available</div>
-                        <div className="d-flex align-items-center"><span className="status-dot me-2" style={{ background: '#6366f1', boxShadow: '0 0 5px #6366f1', width: '12px', height: '12px' }}></span> Occupied</div>
-                        <div className="d-flex align-items-center"><span className="status-dot me-2" style={{ background: '#F59E0B', width: '12px', height: '12px' }}></span> Maintenance</div>
+                    <div className="flex gap-6 mt-6 pt-6 border-t border-slate-800 text-sm text-slate-400">
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-md bg-slate-800 border border-slate-600"></div> 
+                            <span>Available</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-md bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div> 
+                            <span>Occupied</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-md bg-amber-500/20 border border-amber-500/50"></div> 
+                            <span>Maintenance</span>
+                        </div>
                     </div>
-                </div>
+                </motion.div>
 
-            </div>
+            </motion.div>
         </div>
     );
 };
-
-/* Helper Icon */
-const FaCheckCircle = ({ className }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-    </svg>
-)
 
 export default AdminDashboard;
