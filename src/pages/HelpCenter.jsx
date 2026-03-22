@@ -6,6 +6,8 @@ const HelpCenter = () => {
   const guidesRef = useRef(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+    
     const revealElements = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver(
       (entries) => {
@@ -17,7 +19,7 @@ const HelpCenter = () => {
           }
         });
       },
-      { 
+      {
         threshold: 0.15,
         rootMargin: "0px 0px -50px 0px"
       }
