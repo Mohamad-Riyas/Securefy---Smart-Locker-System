@@ -9,6 +9,7 @@ import Availability from "./pages/Availability";
 import MyQRCode from "./pages/MyQRCode";
 import AboutUs from "./pages/AboutUs";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import HelpCenter from "./pages/HelpCenter";
 import AdminLayout from "./components/Admin/AdminLayout";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminLockers from "./pages/Admin/AdminLockers";
@@ -47,6 +48,7 @@ function App() {
         <Route path="/my-qr-code" element={<MyQRCode />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/help-center" element={<HelpCenter />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
