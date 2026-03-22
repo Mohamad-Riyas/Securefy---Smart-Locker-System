@@ -44,8 +44,8 @@ const HelpCenter = () => {
             <div className="help-icon-wrapper" style={{ color: '#818cf8' }}>
               <FaQuestionCircle />
             </div>
-            <h4 className="text-2xl font-bold text-slate-100 mb-4">FAQs</h4>
-            <p className="text-slate-300 text-lg leading-relaxed font-light mb-6">
+            <h4>FAQs</h4>
+            <p>
               Having trouble? Browse our frequently asked questions about access control, expired tokens, and app issues.
             </p>
             <button className="text-indigo-400 font-semibold hover:text-indigo-300 transition-colors">View FAQs →</button>
