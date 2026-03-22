@@ -1,12 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaLock, FaQrcode, FaMobileAlt } from "react-icons/fa";
+import { FaLock, FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
 
 const Footer = () => {
     return (
         <footer className="relative z-10 border-t border-slate-800 bg-slate-950 pt-32 pb-10 overflow-hidden group">
             {/* --- Professional Electric Sine Wave Background --- */}
-            
+
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 flex items-end justify-center opacity-70">
                 {/* Glow & Gradient Definitions */}
                 <svg width="0" height="0">
@@ -25,23 +25,23 @@ const Footer = () => {
 
                 {/* Layer 1: Foreground Fast Wave */}
                 <svg className="absolute bottom-[-100px] w-[200%] h-[400px] min-w-[2000px] animate-wave-slide opacity-80" viewBox="0 0 2000 400" preserveAspectRatio="none">
-                    <path 
-                        d="M 0 200 Q 250 100 500 200 T 1000 200 Q 1250 100 1500 200 T 2000 200" 
-                        fill="none" 
-                        stroke="url(#wave-grad-1)" 
-                        strokeWidth="4" 
-                        filter="url(#wave-glow)" 
+                    <path
+                        d="M 0 200 Q 250 100 500 200 T 1000 200 Q 1250 100 1500 200 T 2000 200"
+                        fill="none"
+                        stroke="url(#wave-grad-1)"
+                        strokeWidth="4"
+                        filter="url(#wave-glow)"
                     />
                 </svg>
 
                 {/* Layer 2: Background Slow Reversed Wave */}
                 <svg className="absolute bottom-[-50px] w-[200%] h-[500px] min-w-[2000px] animate-wave-slide-slow opacity-50" viewBox="0 0 2000 500" preserveAspectRatio="none">
-                    <path 
-                        d="M 0 250 Q 250 400 500 250 T 1000 250 Q 1250 400 1500 250 T 2000 250" 
-                        fill="none" 
-                        stroke="url(#wave-grad-1)" 
-                        strokeWidth="6" 
-                        filter="url(#wave-glow)" 
+                    <path
+                        d="M 0 250 Q 250 400 500 250 T 1000 250 Q 1250 400 1500 250 T 2000 250"
+                        fill="none"
+                        stroke="url(#wave-grad-1)"
+                        strokeWidth="6"
+                        filter="url(#wave-glow)"
                     />
                 </svg>
             </div>
@@ -58,13 +58,23 @@ const Footer = () => {
                         <p className="text-slate-400 max-w-sm leading-relaxed">
                             Innovating campus security through state-of-the-art IoT solutions. Secure storage for the modern student.
                         </p>
-                        <div className="flex gap-4 pt-2">
-                            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-indigo-500/20 hover:text-indigo-400 cursor-pointer transition-colors border border-slate-700">
-                                <FaQrcode />
-                            </div>
-                            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-indigo-500/20 hover:text-indigo-400 cursor-pointer transition-colors border border-slate-700">
-                                <FaMobileAlt />
-                            </div>
+                        <div className="flex gap-4 pt-4">
+                            {[
+                                { Icon: FaFacebookF, href: "https://facebook.com", color: "hover:bg-blue-600/20 hover:text-blue-500 hover:border-blue-500/50" },
+                                { Icon: FaInstagram, href: "https://instagram.com", color: "hover:bg-pink-600/20 hover:text-pink-500 hover:border-pink-500/50" },
+                                { Icon: FaLinkedinIn, href: "https://linkedin.com", color: "hover:bg-blue-700/20 hover:text-blue-400 hover:border-blue-400/50" }
+                            ].map((social, idx) => (
+                                <a
+                                    key={idx}
+                                    href={social.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`w-11 h-11 rounded-xl bg-slate-900/50 backdrop-blur-sm flex items-center justify-center text-slate-400 border border-slate-800 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(79,70,229,0.3)] ${social.color}`}
+                                    aria-label="Social Link"
+                                >
+                                    <social.Icon className="text-xl" />
+                                </a>
+                            ))}
                         </div>
                     </div>
 

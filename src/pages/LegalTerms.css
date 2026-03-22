@@ -1,0 +1,113 @@
+/* PrivacyPolicy.css */
+:root {
+  --primary-blue: #7C8CFF;
+  --accent-blue: #5850EC;
+  --dark-bg: #0f172a;
+  --dark-bg-secondary: #111c2d;
+  --card-bg: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --text-primary: #E5E7EB;
+  --text-secondary: #9CA3AF;
+  --border-radius: 16px;
+  --transition: all 0.3s ease;
+}
+/* PAGE BACKGROUND */
+.privacy-page {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #0b1120);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding-bottom: 100px;
+}
+/* HERO SECTION */
+.hero-section {
+  padding: 120px 20px 100px 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #111c2d, #0f172a);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 80px;
+}
+.hero-section h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, #ffffff, #7C8CFF);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.hero-section .tagline {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  max-width: 750px;
+  margin: 0 auto;
+}
+/* CONTAINER */
+.privacy-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+/* CONTENT BOX */
+.content-box {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  padding: 44px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--card-border);
+  transition: var(--transition);
+}
+.content-box:hover {
+  transform: translateY(-4px);
+  border-color: rgba(124, 140, 255, 0.4);
+}
+.content-box h2 {
+  color: var(--primary-blue);
+  margin-bottom: 24px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+.content-box p {
+  line-height: 1.8;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+.content-box ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 24px;
+}
+.content-box li {
+  margin-bottom: 16px;
+  padding-left: 30px;
+  position: relative;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+.content-box li::before {
+  content: "•";
+  color: var(--primary-blue);
+  font-size: 1.2rem;
+  position: absolute;
+  left: 0;
+}
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease-out;
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .hero-section h1 {
+    font-size: 2.6rem;
+  }
+}
