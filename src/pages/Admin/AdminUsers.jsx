@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebase";
-import { collection, getDocs, updateDoc, doc, query, where } from "firebase/firestore";
+import { collection, updateDoc, doc, query, where, onSnapshot } from "firebase/firestore";
 import { toast } from "react-toastify";
-import { FaUserShield, FaBan, FaCheckCircle, FaHistory } from "react-icons/fa";
+import { FaUserShield, FaBan, FaCheckCircle, FaHistory, FaSearch, FaTimes } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
 const AdminUsers = () => {
     const [users, setUsers] = useState([]);
@@ -13,17 +14,11 @@ const AdminUsers = () => {
 
     const usersCollectionRef = collection(db, "users");
 
-    const fetchUsers = async () => {
-        try {
-            const data = await getDocs(usersCollectionRef);
-            setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-        } catch (error) {
-            console.error("Error fetching users:", error);
-        }
-    };
-
     useEffect(() => {
-        fetchUsers();
+        const unsubscribe = onSnapshot(usersCollectionRef, (snapshot) => {
+            setUsers(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+        });
+        return () => unsubscribe();
     }, []);
 
     const toggleStatus = async (id, currentStatus) => {
@@ -32,7 +27,6 @@ const AdminUsers = () => {
             const userDoc = doc(db, "users", id);
             await updateDoc(userDoc, { status: newStatus });
             toast.success(`User ${newStatus === 'active' ? 'activated' : 'suspended'}`);
-            fetchUsers();
         } catch (error) {
             toast.error("Error updating user status: " + error.message);
         }
@@ -44,32 +38,49 @@ const AdminUsers = () => {
             const userDoc = doc(db, "users", id);
             await updateDoc(userDoc, { role: newRole });
             toast.success(`User role updated to ${newRole}`);
-            fetchUsers();
         } catch (error) {
             toast.error("Error updating user role: " + error.message);
         }
     };
 
-    const handleViewHistory = async (user) => {
+    const [historyUnsubscribe, setHistoryUnsubscribe] = useState(null);
+
+    const handleViewHistory = (user) => {
         setSelectedUser(user);
         setUserBookings([]);
         setShowHistoryModal(true);
+        
+        if (historyUnsubscribe) historyUnsubscribe();
+
         try {
             const bookingsRef = collection(db, "bookings");
-            const q = query(bookingsRef, where("userId", "==", user.uid || user.id)); // Fallback to id if uid not in data
-            const querySnapshot = await getDocs(q);
-            const bookings = querySnapshot.docs.map(doc => {
-                const d = doc.data();
-                return {
-                    id: doc.id,
-                    ...d,
-                    date: d.startTime && d.startTime.toDate ? d.startTime.toDate().toLocaleDateString() : 'N/A'
-                };
+            const q = query(bookingsRef, where("userId", "==", user.uid || user.id)); 
+            
+            const unsubscribe = onSnapshot(q, (querySnapshot) => {
+                const bookings = querySnapshot.docs.map(doc => {
+                    const d = doc.data();
+                    return {
+                        id: doc.id,
+                        ...d,
+                        date: d.startTime && d.startTime.toDate ? d.startTime.toDate().toLocaleDateString() : 'N/A',
+                        timeMillis: d.startTime && d.startTime.toMillis ? d.startTime.toMillis() : Date.now()
+                    };
+                });
+                bookings.sort((a,b) => b.timeMillis - a.timeMillis);
+                setUserBookings(bookings);
             });
-            setUserBookings(bookings);
+            setHistoryUnsubscribe(() => unsubscribe);
         } catch (error) {
-            console.error("Error fetching user history:", error);
-            toast.error("Error loading user history.");
+            console.error("Error fetching user history realtime:", error);
+            toast.error("Error loading live history.");
+        }
+    };
+
+    const closeHistoryModal = () => {
+        setShowHistoryModal(false);
+        if (historyUnsubscribe) {
+            historyUnsubscribe();
+            setHistoryUnsubscribe(null);
         }
     };
 
@@ -79,157 +90,203 @@ const AdminUsers = () => {
     );
 
     return (
-        <div className="container-fluid p-0">
-            <h1 className="section-header">User Management</h1>
-            <div className="mb-4">
-                <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Search by Name or Email..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{
-                        background: "#0f172a",
-                        border: "1px solid #334155",
-                        color: "#f8fafc",
-                        padding: "10px 15px",
-                        borderRadius: "8px",
-                        maxWidth: "400px" // specific to this page design
-                    }}
-                />
-            </div>
-
-            <div className="stat-card-aura" style={{ padding: '0', overflow: 'hidden', minHeight: '400px' }}>
-                <div className="table-responsive">
-                    <table className="table mb-0" style={{ color: '#94a3b8' }}>
-                        <thead style={{ background: 'rgba(255,255,255,0.05)', color: '#f8fafc', borderBottom: '1px solid #334155' }}>
-                            <tr>
-                                <th style={{ padding: '16px 24px', fontWeight: '600', border: 'none' }}>Name</th>
-                                <th style={{ padding: '16px 24px', fontWeight: '600', border: 'none' }}>Email</th>
-                                <th style={{ padding: '16px 24px', fontWeight: '600', border: 'none' }}>Role</th>
-                                <th style={{ padding: '16px 24px', fontWeight: '600', border: 'none' }}>Status</th>
-                                <th style={{ padding: '16px 24px', fontWeight: '600', border: 'none' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredUsers.map((user) => (
-                                <tr key={user.id} style={{ borderBottom: '1px solid #334155', transition: 'background 0.2s' }}>
-                                    <td style={{ padding: '16px 24px', verticalAlign: 'middle', border: 'none', color: '#f8fafc', fontWeight: '500' }}>
-                                        {user.name}
-                                    </td>
-                                    <td style={{ padding: '16px 24px', verticalAlign: 'middle', border: 'none' }}>{user.email}</td>
-                                    <td style={{ padding: '16px 24px', verticalAlign: 'middle', border: 'none' }}>
-                                        <span className="badge" style={{
-                                            background: user.role === 'admin' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(99, 102, 241, 0.1)',
-                                            color: user.role === 'admin' ? '#ef4444' : '#818cf8',
-                                            border: `1px solid ${user.role === 'admin' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(99, 102, 241, 0.2)'}`,
-                                            padding: '4px 10px',
-                                            borderRadius: '6px'
-                                        }}>
-                                            {user.role}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '16px 24px', verticalAlign: 'middle', border: 'none' }}>
-                                        <span className="badge" style={{
-                                            background: user.status === 'suspended' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                                            color: user.status === 'suspended' ? '#f59e0b' : '#10b981',
-                                            border: `1px solid ${user.status === 'suspended' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`,
-                                            padding: '4px 10px',
-                                            borderRadius: '6px'
-                                        }}>
-                                            {user.status || 'active'}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '16px 24px', verticalAlign: 'middle', border: 'none' }}>
-                                        <button
-                                            className="btn btn-sm me-2"
-                                            onClick={() => toggleRole(user.id, user.role)}
-                                            style={{ background: 'transparent', border: '1px solid #6366f1', color: '#6366f1' }}
-                                            title={user.role === 'admin' ? 'Demote' : 'Promote'}
-                                        >
-                                            <FaUserShield />
-                                        </button>
-                                        <button
-                                            className="btn btn-sm me-2"
-                                            onClick={() => toggleStatus(user.id, user.status)}
-                                            style={{
-                                                background: 'transparent',
-                                                border: user.status === 'suspended' ? '1px solid #10b981' : '1px solid #f59e0b',
-                                                color: user.status === 'suspended' ? '#10b981' : '#f59e0b'
-                                            }}
-                                            title={user.status === 'suspended' ? 'Activate' : 'Suspend'}
-                                        >
-                                            {user.status === 'suspended' ? <FaCheckCircle /> : <FaBan />}
-                                        </button>
-                                        <button
-                                            className="btn btn-sm"
-                                            onClick={() => handleViewHistory(user)}
-                                            style={{ background: 'transparent', border: '1px solid #94a3b8', color: '#94a3b8' }}
-                                            title="View History"
-                                        >
-                                            <FaHistory />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+        <div className="relative min-h-[90vh] w-full flex flex-col pt-4">
+            
+            <div className="flex flex-col md:flex-row md:justify-between md:items-end mb-8 relative z-10 w-full gap-4">
+                <div>
+                    <h1 className="text-3xl font-extrabold text-slate-100 tracking-tight">Identity Access</h1>
+                    <p className="text-slate-400 mt-1">Manage network users, privileges, and connection history.</p>
+                </div>
+                
+                <div className="relative w-full md:w-80 group">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                        <FaSearch />
+                    </div>
+                    <input
+                        type="text"
+                        className="w-full bg-slate-900/60 backdrop-blur-md border border-slate-700 focus:border-indigo-500 text-slate-200 pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-lg transition-all"
+                        placeholder="Search Identity or Matrix ID..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </div>
             </div>
 
-            {showHistoryModal && selectedUser && (
-                <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: 'blur(5px)' }}>
-                    <div className="modal-dialog modal-lg modal-dialog-centered">
-                        <div className="modal-content" style={{ backgroundColor: "#1e293b", color: "#f8fafc", border: "1px solid #334155" }}>
-                            <div className="modal-header" style={{ borderBottom: "1px solid #334155" }}>
-                                <h5 className="modal-title">Booking History: {selectedUser.name}</h5>
-                                <button type="button" className="btn-close btn-close-white" onClick={() => setShowHistoryModal(false)}></button>
+            <div className="flex-1 bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-2xl relative overflow-hidden">
+                <div className="absolute inset-x-0 h-px top-0 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
+                
+                <div className="overflow-x-auto w-full">
+                    <table className="w-full whitespace-nowrap">
+                        <thead>
+                            <tr className="bg-slate-900/40 text-left text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                                <th className="px-6 py-5 font-semibold">User Identity</th>
+                                <th className="px-6 py-5 font-semibold">Matrix ID (Email)</th>
+                                <th className="px-6 py-5 font-semibold">Clearance</th>
+                                <th className="px-6 py-5 font-semibold">Node Status</th>
+                                <th className="px-6 py-5 font-semibold text-right">Overrides</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/50 text-sm">
+                            <AnimatePresence>
+                                {filteredUsers.map((user, index) => (
+                                    <motion.tr 
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ delay: index * 0.05 }}
+                                        key={user.id} 
+                                        className="hover:bg-slate-800/30 transition-colors group"
+                                    >
+                                        <td className="px-6 py-5 text-slate-200 font-medium">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-8 w-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">
+                                                    {user.name ? user.name.charAt(0).toUpperCase() : '?'}
+                                                </div>
+                                                {user.name || 'Unknown Protocol'}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 text-slate-400">{user.email}</td>
+                                        <td className="px-6 py-5">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border ${
+                                                user.role === 'admin' 
+                                                ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.2)]' 
+                                                : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                                            }`}>
+                                                {user.role}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-2">
+                                                <div className={`w-2 h-2 rounded-full ${user.status === 'suspended' ? 'bg-amber-500 shadow-[0_0_5px_#f59e0b]' : 'bg-emerald-500 shadow-[0_0_5px_#10b981]'}`}></div>
+                                                <span className={user.status === 'suspended' ? 'text-amber-500' : 'text-emerald-400'}>
+                                                    {user.status === 'suspended' ? 'Suspended' : 'Active'}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 text-right flex justify-end gap-3 opacity-80 group-hover:opacity-100 transition-opacity">
+                                            <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} 
+                                                className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white transition-colors border border-indigo-500/20 cursor-pointer"
+                                                onClick={() => toggleRole(user.id, user.role)}
+                                                title={user.role === 'admin' ? 'Revoke Admin' : 'Grant Admin'}
+                                            >
+                                                <FaUserShield />
+                                            </motion.button>
+                                            
+                                            <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} 
+                                                className={`p-2 rounded-lg transition-colors border cursor-pointer ${
+                                                    user.status === 'suspended' 
+                                                    ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white border-emerald-500/20' 
+                                                    : 'bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white border-amber-500/20'
+                                                }`}
+                                                onClick={() => toggleStatus(user.id, user.status)}
+                                                title={user.status === 'suspended' ? 'Reactivate Node' : 'Suspend Node'}
+                                            >
+                                                {user.status === 'suspended' ? <FaCheckCircle /> : <FaBan />}
+                                            </motion.button>
+
+                                            <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} 
+                                                className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors border border-slate-700 cursor-pointer"
+                                                onClick={() => handleViewHistory(user)}
+                                                title="View Access History"
+                                            >
+                                                <FaHistory />
+                                            </motion.button>
+                                        </td>
+                                    </motion.tr>
+                                ))}
+                            </AnimatePresence>
+                        </tbody>
+                    </table>
+                    
+                    {filteredUsers.length === 0 && (
+                        <div className="p-12 text-center text-slate-500">
+                            No active identities found matching your query.
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* History Modal */}
+            <AnimatePresence>
+                {showHistoryModal && selectedUser && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div 
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+                            className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+                            onClick={closeHistoryModal}
+                        ></motion.div>
+                        
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                            className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-3xl relative z-10 shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+                        >
+                            <div className="px-6 py-5 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+                                <div>
+                                    <h2 className="text-xl font-black text-slate-100 flex items-center gap-2">
+                                        <FaHistory className="text-indigo-400" />
+                                        Access Log
+                                    </h2>
+                                    <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest">{selectedUser.name || selectedUser.email}</p>
+                                </div>
+                                <button onClick={closeHistoryModal} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
+                                    <FaTimes />
+                                </button>
                             </div>
-                            <div className="modal-body">
+                            
+                            <div className="overflow-y-auto w-full custom-scrollbar p-0 flex-1">
                                 {userBookings.length > 0 ? (
-                                    <div className="table-responsive">
-                                        <table className="table table-sm mb-0" style={{ color: '#94a3b8' }}>
-                                            <thead style={{ borderBottom: '1px solid #334155', color: '#f8fafc' }}>
-                                                <tr>
-                                                    <th style={{ border: 'none' }}>Locker ID</th>
-                                                    <th style={{ border: 'none' }}>Date</th>
-                                                    <th style={{ border: 'none' }}>Status</th>
-                                                    <th style={{ border: 'none' }}>Price</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {userBookings.map(booking => (
-                                                    <tr key={booking.id} style={{ borderBottom: '1px solid #334155' }}>
-                                                        <td style={{ border: 'none' }}>{booking.lockerId}</td>
-                                                        <td style={{ border: 'none' }}>{booking.date}</td>
-                                                        <td style={{ border: 'none' }}>
-                                                            <span className="badge" style={{
-                                                                background: booking.status === 'active' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(99, 102, 241, 0.1)',
-                                                                color: booking.status === 'active' ? '#10b981' : '#818cf8',
-                                                                border: booking.status === 'active' ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(99, 102, 241, 0.2)'
-                                                            }}>
-                                                                {booking.status}
-                                                            </span>
-                                                        </td>
-                                                        <td style={{ border: 'none' }}>${booking.price || '-'}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                    <table className="w-full whitespace-nowrap text-left text-sm">
+                                        <thead className="bg-slate-900 sticky top-0 z-10">
+                                            <tr className="text-xs uppercase tracking-wider text-slate-500 border-b border-slate-800">
+                                                <th className="px-6 py-4 font-semibold">Node Code</th>
+                                                <th className="px-6 py-4 font-semibold">Timestamp</th>
+                                                <th className="px-6 py-4 font-semibold">Status</th>
+                                                <th className="px-6 py-4 font-semibold">Cost</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-800/50">
+                                            {userBookings.map((booking, i) => (
+                                                <motion.tr 
+                                                    initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
+                                                    key={booking.id} 
+                                                    className="hover:bg-slate-800/30 transition-colors"
+                                                >
+                                                    <td className="px-6 py-4 text-indigo-400 font-mono font-bold">{booking.lockerId}</td>
+                                                    <td className="px-6 py-4 text-slate-300">{booking.date}</td>
+                                                    <td className="px-6 py-4">
+                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                                            booking.status === 'active' 
+                                                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                                                            : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                                                        }`}>
+                                                            {booking.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-slate-400 font-mono">${booking.price || '0.00'}</td>
+                                                </motion.tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 ) : (
-                                    <div className="text-center py-4 text-muted">
-                                        <p>No booking history found for this user.</p>
+                                    <div className="text-center py-16 text-slate-500 flex flex-col items-center gap-3">
+                                        <FaHistory className="text-4xl text-slate-700" />
+                                        <p>No telemetry data found for this identity.</p>
                                     </div>
                                 )}
                             </div>
-                            <div className="modal-footer" style={{ borderTop: "1px solid #334155" }}>
-                                <button type="button" className="btn btn-outline-secondary" onClick={() => setShowHistoryModal(false)}>Close</button>
+                            
+                            <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/50 flex justify-end">
+                                <button type="button" onClick={closeHistoryModal} className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold rounded-xl transition-colors cursor-pointer">
+                                    Close Terminal
+                                </button>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
-                </div>
-            )}
+                )}
+            </AnimatePresence>
         </div>
     );
 };
