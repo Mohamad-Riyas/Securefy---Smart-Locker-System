@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import './HelpCenter.css';
 import { FaEnvelope, FaPhoneAlt, FaQuestionCircle, FaBook } from 'react-icons/fa';
 
