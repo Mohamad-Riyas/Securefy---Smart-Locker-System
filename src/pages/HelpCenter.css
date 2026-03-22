@@ -1,4 +1,5 @@
 /* HelpCenter.css */
+
 /* DARK THEME VARIABLES */
 :root {
   --primary-blue: #7C8CFF;
@@ -9,9 +10,11 @@
   --card-border: rgba(255, 255, 255, 0.08);
   --text-primary: #E5E7EB;
   --text-secondary: #9CA3AF;
+
   --border-radius: 16px;
   --transition: all 0.3s ease;
 }
+
 /* PAGE BACKGROUND */
 .help-page {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -20,6 +23,7 @@
   min-height: 100vh;
   padding-bottom: 100px;
 }
+
 /* HERO SECTION */
 .help-hero-section {
   padding: 120px 20px 100px 20px;
@@ -28,6 +32,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   margin-bottom: 80px;
 }
+
 .help-hero-section .badge {
   display: inline-flex;
   align-items: center;
@@ -41,12 +46,14 @@
   font-weight: 600;
   margin-bottom: 24px;
 }
+
 .help-hero-section h1 {
   font-size: 3.5rem;
   font-weight: 800;
   margin-bottom: 20px;
   color: #fff;
 }
+
 .help-hero-section h1 span {
   background: linear-gradient(90deg, #ffffff, #7C8CFF);
   background-clip: text;
@@ -54,6 +61,7 @@
   color: transparent;
   -webkit-text-fill-color: transparent;
 }
+
 .help-hero-section .tagline {
   font-size: 1.2rem;
   color: var(--text-secondary);
@@ -61,6 +69,7 @@
   margin: 0 auto;
   line-height: 1.6;
 }
+
 /* CONTAINER */
 .help-container {
   max-width: 1100px;
@@ -70,12 +79,14 @@
   flex-direction: column;
   gap: 60px;
 }
+
 /* CARDS GRID */
 .help-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 30px;
 }
+
 .help-card {
   background: var(--card-bg);
   backdrop-filter: blur(12px);
@@ -84,10 +95,12 @@
   border: 1px solid var(--card-border);
   transition: var(--transition);
 }
+
 .help-card:hover {
   transform: translateY(-8px);
   border-color: rgba(124, 140, 255, 0.4);
 }
+
 .help-icon-wrapper {
   font-size: 2.2rem;
   margin-bottom: 24px;
@@ -98,22 +111,26 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: var(--transition);
 }
+
 .help-card:hover .help-icon-wrapper {
   background: rgba(124, 140, 255, 0.1);
   border-color: rgba(124, 140, 255, 0.3);
 }
+
 .help-card h4 {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 16px;
 }
+
 .help-card p {
   color: var(--text-secondary);
   line-height: 1.7;
   font-size: 1.05rem;
   margin-bottom: 24px;
 }
+
 .help-card button {
   background: transparent;
   border: none;
@@ -123,12 +140,15 @@
   padding: 0;
   transition: var(--transition);
 }
+
 .btn-primary-text {
   color: var(--primary-blue);
 }
+
 .btn-primary-text:hover {
   color: #fff;
 }
+
 /* CONTACT SECTION */
 .contact-box {
   background: var(--card-bg);
@@ -139,15 +159,18 @@
   text-align: center;
   transition: var(--transition);
 }
+
 .contact-box:hover {
   border-color: rgba(124, 140, 255, 0.4);
 }
+
 .contact-box h3 {
   font-size: 2rem;
   font-weight: 700;
   color: #fff;
   margin-bottom: 16px;
 }
+
 .contact-box p {
   font-size: 1.1rem;
   color: var(--text-secondary);
@@ -157,12 +180,14 @@
   margin-right: auto;
   line-height: 1.6;
 }
+
 .contact-actions {
   display: flex;
   justify-content: center;
   gap: 20px;
   flex-wrap: wrap;
 }
+
 .contact-btn {
   display: flex;
   align-items: center;
@@ -174,25 +199,99 @@
   text-decoration: none;
   transition: var(--transition);
 }
+
 .contact-btn.primary {
   background: var(--primary-blue);
   color: #fff;
   box-shadow: 0 4px 14px rgba(124, 140, 255, 0.4);
 }
+
 .contact-btn.primary:hover {
   background: var(--accent-blue);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(124, 140, 255, 0.6);
 }
+
 .contact-btn.secondary {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-primary);
 }
+
 .contact-btn.secondary:hover {
   background: rgba(255, 255, 255, 0.1);
   transform: translateY(-2px);
 }
+
+/* GUIDES SECTION */
+.guides-section {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  padding: 50px 40px;
+}
+
+.guides-section h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.guide-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  transition: var(--transition);
+}
+
+.guide-step:hover {
+  border-color: rgba(124, 140, 255, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: rgba(124, 140, 255, 0.1);
+  color: var(--primary-blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border: 1px solid rgba(124, 140, 255, 0.3);
+}
+
+.step-content h4 {
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  font-weight: 600;
+  margin-top: 0;
+}
+
+.step-content p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(30px);
@@ -202,8 +301,10 @@
   opacity: 1;
   transform: translateY(0);
 }
+
 .help-card.reveal:nth-child(1) { transition-delay: 0.1s; }
 .help-card.reveal:nth-child(2) { transition-delay: 0.2s; }
+
 .guide-step.reveal:nth-child(1) { transition-delay: 0.1s; }
 .guide-step.reveal:nth-child(2) { transition-delay: 0.2s; }
 .guide-step.reveal:nth-child(3) { transition-delay: 0.3s; }
@@ -222,5 +323,14 @@
   .contact-btn {
     width: 100%;
     justify-content: center;
+  }
+
+  .guides-section {
+    padding: 30px 20px;
+  }
+
+  .guide-step {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
