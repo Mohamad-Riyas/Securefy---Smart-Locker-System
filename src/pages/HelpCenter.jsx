@@ -7,8 +7,19 @@ import { FaEnvelope, FaPhoneAlt, FaQuestionCircle, FaBook } from 'react-icons/fa
 const HelpCenter = () => {
   return (
 
-    // background styling from the Home page
-    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-100 font-sans selection:bg-blue-500/40 selection:text-white min-h-screen pt-24 pb-20">
+    <div className="help-page">
+      {/* 1. Hero Section */}
+      <div className="help-hero-section">
+        <div className="badge">
+          <FaQuestionCircle /> Support & Resources
+        </div>
+        <h1>
+          How can we <span>help you?</span>
+        </h1>
+        <p className="tagline">
+          Find answers to common questions, view our guides, or get in touch with the Securefy support team.
+        </p>
+      </div>
 
 
 
