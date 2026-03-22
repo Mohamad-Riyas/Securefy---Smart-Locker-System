@@ -93,11 +93,10 @@ function requireDeviceKey(req, res, next) {
 app.post("/verifyQr", requireDeviceKey, async (req, res) => {
   const { token, lockerId } = req.body;
 
-  console.log(`\n[VERIFY QR] Token: ${token} | Locker: ${lockerId}`);
+  console.log(`\n[VERIFY QR] Token: ${token} | Request Locker: ${lockerId || "ANY"}`);
 
-  // ── Basic input check ──
-  if (!token || !lockerId) {
-    return res.json({ allow: false, reason: "Missing token or lockerId" });
+  if (!token) {
+    return res.json({ allow: false, reason: "Missing token" });
   }
 
   if (!token.startsWith("QR_")) {
@@ -105,47 +104,49 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
   }
 
   try {
-    // ── Step 1: Find the booking with this exact QR token ──
-    const bookingSnap = await db
-      .collection("bookings")
-      .where("qrToken",  "==", token)
-      .where("lockerId", "==", lockerId)   // Must belong to THIS locker
-      .where("status",   "==", "active")   // Must still be active
-      .get();
+    let query = db.collection("bookings")
+                  .where("qrToken", "==", token)
+                  .where("status", "==", "active");
+
+    // If a specific lockerId was sent, enforce it. Otherwise, find ANY active booking for this token.
+    if (lockerId && lockerId !== "ALL") {
+      query = query.where("lockerId", "==", lockerId);
+    }
+
+    const bookingSnap = await query.get();
 
     if (bookingSnap.empty) {
-      console.log(`[DENIED] No booking found for token: ${token}`);
-      return res.json({ allow: false, reason: "Invalid QR — no matching booking" });
+      console.log(`[DENIED] No active booking found for token: ${token}`);
+      return res.json({ allow: false, reason: "Invalid QR or no matching booking" });
     }
 
     const bookingDoc  = bookingSnap.docs[0];
     const bookingData = bookingDoc.data();
+    const targetLockerId = bookingData.lockerId;
 
-    // ── Step 2: Check if already used ──
+    // ── Check if already used ──
     if (bookingData.qrUsed === true) {
       console.log(`[DENIED] QR already used at: ${bookingData.qrUsedAt?.toDate()}`);
       return res.json({ allow: false, reason: "QR already used" });
     }
 
-    // ── Step 3: Check if expired ──
-    const now      = new Date();
-    const expiresAt = bookingData.qrExpiresAt.toDate();
-    if (now > expiresAt) {
-      console.log(`[DENIED] QR expired at: ${expiresAt}`);
-      return res.json({ allow: false, reason: "QR expired" });
+    // ── Check if booking hasn't started yet ──
+    const now = new Date();
+    const startTime = bookingData.startTime.toDate();
+    if (now < startTime) {
+       console.log(`[DENIED] Booking hasn't started. Starts at: ${startTime}`);
+       return res.json({ allow: false, reason: "Booking hasn't started yet" });
     }
 
-    // ── Step 4: All checks passed — mark as used and update locker status ──
+    // ── All checks passed — mark as used and update locker status ──
     const batch = db.batch();
 
-    // Mark this QR as used so it cannot be replayed
     batch.update(bookingDoc.ref, {
       qrUsed:   true,
       qrUsedAt: Timestamp.fromDate(now),
     });
 
-    // Update locker status from "reserved" → "occupied"
-    const lockerRef = db.collection("lockers").doc(lockerId);
+    const lockerRef = db.collection("lockers").doc(targetLockerId);
     batch.update(lockerRef, {
       status:      "occupied",
       lastUpdated: Timestamp.fromDate(now),
@@ -153,8 +154,8 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
 
     await batch.commit();
 
-    console.log(`[GRANTED] Locker ${lockerId} opened for booking ${bookingDoc.id}`);
-    return res.json({ allow: true });
+    console.log(`[GRANTED] Locker ${targetLockerId} opened for booking ${bookingDoc.id}`);
+    return res.json({ allow: true, lockerId: targetLockerId });
 
   } catch (err) {
     console.error("[SERVER ERROR]", err);
