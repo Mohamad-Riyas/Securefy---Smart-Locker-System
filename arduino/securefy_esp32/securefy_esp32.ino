@@ -42,7 +42,7 @@ const char* DEVICE_KEY = "securefy-device-key-2024";
 
 // ─────────────────────────────────────────────
 //  RELAY LOGIC
- Most relay modules: LOW = ON (unlocked), HIGH = OFF (locked)
+//  Most relay modules: LOW = ON (unlocked), HIGH = OFF (locked)
 //  Swap if yours is reversed
 // ─────────────────────────────────────────────
 const int RELAY_UNLOCK = LOW;
