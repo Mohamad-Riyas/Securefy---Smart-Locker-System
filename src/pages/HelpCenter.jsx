@@ -38,7 +38,7 @@ const HelpCenter = () => {
   return (
     <div className="help-page">
       {/* 1. Hero Section */}
-      <div className="help-hero-section">
+      <div className="help-hero-section reveal">
         <div className="badge">
           <FaQuestionCircle /> Support & Resources
         </div>
@@ -53,7 +53,7 @@ const HelpCenter = () => {
       <div className="help-container">
         {/* 2. FAQ / Cards Section */}
         <div className="help-grid">
-          <div className="help-card">
+          <div className="help-card reveal">
             <div className="help-icon-wrapper" style={{ color: '#60a5fa' }}>
               <FaBook />
             </div>
@@ -64,7 +64,7 @@ const HelpCenter = () => {
             <button className="btn-primary-text" style={{ color: '#60a5fa' }} onClick={scrollToGuides}>Read Guides →</button>
           </div>
 
-          <div className="help-card">
+          <div className="help-card reveal">
             <div className="help-icon-wrapper" style={{ color: '#818cf8' }}>
               <FaQuestionCircle />
             </div>
@@ -77,10 +77,10 @@ const HelpCenter = () => {
         </div>
 
         {/* 3. Guides Section */}
-        <div className="guides-section" ref={guidesRef}>
+        <div className="guides-section reveal" ref={guidesRef}>
           <h3>Step-by-Step Guides</h3>
           <div className="guide-steps">
-            <div className="guide-step">
+            <div className="guide-step reveal">
               <div className="step-number">1</div>
               <div className="step-content">
                 <h4>Reserve a Locker</h4>
@@ -88,7 +88,7 @@ const HelpCenter = () => {
               </div>
             </div>
 
-            <div className="guide-step">
+            <div className="guide-step reveal">
               <div className="step-number">2</div>
               <div className="step-content">
                 <h4>Generate Access Token</h4>
@@ -96,7 +96,7 @@ const HelpCenter = () => {
               </div>
             </div>
 
-            <div className="guide-step">
+            <div className="guide-step reveal">
               <div className="step-number">3</div>
               <div className="step-content">
                 <h4>Scan to Unlock</h4>
@@ -104,7 +104,7 @@ const HelpCenter = () => {
               </div>
             </div>
 
-            <div className="guide-step">
+            <div className="guide-step reveal">
               <div className="step-number">4</div>
               <div className="step-content">
                 <h4>Manage Active Sessions</h4>
@@ -115,7 +115,7 @@ const HelpCenter = () => {
         </div>
 
         {/* 4. Contact Section */}
-        <div className="contact-box">
+        <div className="contact-box reveal">
           <h3>Still need assistance?</h3>
           <p>
             Our enterprise support team is available 24/7 to help you resolve any issues with the Securefy platform.
