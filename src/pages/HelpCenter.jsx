@@ -1,9 +1,36 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import './HelpCenter.css';
 import { FaEnvelope, FaPhoneAlt, FaQuestionCircle, FaBook } from 'react-icons/fa';
 
 const HelpCenter = () => {
   const guidesRef = useRef(null);
+
+  useEffect(() => {
+    const revealElements = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          } else {
+            entry.target.classList.remove('active');
+          }
+        });
+      },
+      { 
+        threshold: 0.15,
+        rootMargin: "0px 0px -50px 0px"
+      }
+    );
+    revealElements.forEach((el) => {
+      observer.observe(el);
+    });
+    return () => {
+      revealElements.forEach((el) => {
+        if (el) observer.unobserve(el);
+      });
+    };
+  }, []);
 
   const scrollToGuides = () => {
     guidesRef.current?.scrollIntoView({ behavior: 'smooth' });
