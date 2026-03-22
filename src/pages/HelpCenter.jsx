@@ -121,7 +121,7 @@ const HelpCenter = () => {
             Our enterprise support team is available 24/7 to help you resolve any issues with the Securefy platform.
           </p>
           <div className="contact-actions">
-            <a href="mailto:support@securefy.com" className="contact-btn primary">
+            <a href="mailto:securefy@gmail.com" className="contact-btn primary">
               <FaEnvelope /> securefy@gmail.com
             </a>
             <a href="tel:+94763188347" className="contact-btn secondary">
