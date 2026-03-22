@@ -72,7 +72,7 @@ const HelpCenter = () => {
               <FaPhoneAlt /> +94763188347
             </a>
           </div>
-        </motion.div>
+        </div>
 
 
 
@@ -81,4 +81,5 @@ const HelpCenter = () => {
 
   );
 
-}
+};
+export default HelpCenter;
