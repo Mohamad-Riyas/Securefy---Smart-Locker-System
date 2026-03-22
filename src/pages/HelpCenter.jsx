@@ -31,8 +31,8 @@ const HelpCenter = () => {
               <FaBook />
 
             </div>
-            <h4 className="text-2xl font-bold text-slate-100 mb-4">User Guides</h4>
-            <p className="text-slate-300 text-lg leading-relaxed font-light mb-6">
+            <h4>User Guides</h4>
+            <p>
               Learn how to reserve a locker, generate your dynamic QR access token, and manage your active sessions.
             </p>
             <button className="text-blue-400 font-semibold hover:text-blue-300 transition-colors">Read Guides →</button>
