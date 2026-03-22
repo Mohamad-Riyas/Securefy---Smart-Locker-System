@@ -59,14 +59,13 @@ const HelpCenter = () => {
         <div className="contact-box">
           <h3>Still need assistance?</h3>
           <p>
-
             Our enterprise support team is available 24/7 to help you resolve any issues with the Securefy platform.
           </p>
 
 
 
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
-            <a href="mailto:support@securefy.com" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all duration-300 shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:-translate-y-1 flex items-center gap-3 w-full sm:w-auto justify-center">
+          <div className="contact-actions">
+            <a href="mailto:support@securefy.com" className="contact-btn primary">
               <FaEnvelope /> Email Support
             </a>
             <a href="tel:+1234567890" className="px-8 py-4 bg-slate-800/80 hover:bg-slate-700 border border-slate-600 text-slate-200 rounded-xl font-bold transition-all duration-300 shadow-sm flex items-center gap-3 hover:-translate-y-1 w-full sm:w-auto justify-center">
