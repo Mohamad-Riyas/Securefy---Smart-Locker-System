@@ -35,8 +35,8 @@ const HelpCenter = () => {
             <p>
               Learn how to reserve a locker, generate your dynamic QR access token, and manage your active sessions.
             </p>
-            <button className="text-blue-400 font-semibold hover:text-blue-300 transition-colors">Read Guides →</button>
-          </motion.div>
+            <button className="btn-primary-text" style={{ color: '#60a5fa' }}>Read Guides →</button>
+          </div>
 
 
 
