@@ -45,8 +45,8 @@ const char* DEVICE_KEY = "securefy-device-key-2024";
  Most relay modules: LOW = ON (unlocked), HIGH = OFF (locked)
 //  Swap if yours is reversed
 // ─────────────────────────────────────────────
-const int RELAY_UNLOCK = LOW;
-const int RELAY_LOCK   = HIGH;
+const int RELAY_UNLOCK = HIGH; // Try switching from LOW to HIGH
+const int RELAY_LOCK   = LOW;  // Try switching from HIGH to LOW
 
 const int UNLOCK_DURATION_MS = 5000; // 5 seconds open
 const int HTTP_TIMEOUT_MS    = 8000; // 8-second backend timeout
@@ -221,10 +221,73 @@ void sendHeartbeat() {
 }
 
 // ============================================================
+//  LOOP
+// ============================================================
+void loop() {
+  // 1. Wi-Fi Reconnect check
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("[WIFI] Disconnected — reconnecting...");
+    WiFi.disconnect();
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    unsigned long start = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) {
+      delay(500);
+      Serial.print(".");
+    }
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("\n[WIFI] Reconnected! IP: " + WiFi.localIP().toString());
+    } else {
+      Serial.println("\n[WIFI] Reconnect failed — retrying next loop");
+    }
+    return;
+  }
+
+  // 2. LISTEN TO THE PHYSICAL HARDWARE SCANNER (New!)
+  // If your GM65 module is wired to RX2 (16) and TX2 (17)
+  if (Serial2.available()) {
+    String scanned = Serial2.readString();
+    scanned.trim();
+    if (scanned.length() > 0) {
+      Serial.println("\n[HARDWARE SCAN] Code: " + scanned);
+      Serial.println("[INFO] Validating with Cloud Backend...");
+      
+      if (verifyWithBackend(scanned)) {
+        Serial.println("[GRANTED] Opening locker!");
+        unlockLocker();
+      } else {
+        Serial.println("[DENIED] Rejected by Cloud");
+      }
+    }
+  }
+
+  // 3. Handle Web Server scans (Alternative: scan via phone browser)
+  espServer.handleClient();
+
+  // 4. Handle non-blocking re-lock timer
+  if (unlocking && (millis() - unlockStart >= UNLOCK_DURATION_MS)) {
+    digitalWrite(SOLENOID_PIN, RELAY_LOCK);
+    unlocking = false;
+    Serial.println("[RELAY] LOCKED");
+  }
+
+  // 5. Send heartbeat every 60 s
+  static unsigned long lastHeartbeat = 0;
+  if (millis() - lastHeartbeat > 60000) {
+    sendHeartbeat();
+    lastHeartbeat = millis();
+  }
+}
+
+// ============================================================
 //  SETUP
 // ============================================================
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200);   // USB Monitor
+  
+  // Initialize Serial2 for your Hardware Scanner (GM65)
+  // Default Pins: RX2=16, TX2=17
+  Serial2.begin(9600);    
+  
   delay(1000);
 
   Serial.println("\n==============================");
@@ -234,6 +297,7 @@ void setup() {
   pinMode(SOLENOID_PIN, OUTPUT);
   digitalWrite(SOLENOID_PIN, RELAY_LOCK);
   Serial.println("[INIT] Solenoid locked");
+  Serial.println("[INIT] QR Scanner online (Serial2)");
 
   // Connect to Wi-Fi
   Serial.print("[WIFI] Connecting");
@@ -252,45 +316,5 @@ void setup() {
 
   espServer.begin();
   Serial.println("[SERVER] Running on port 80");
-  Serial.println("[READY] Waiting for QR scans...");
-  Serial.println("[URL]   http://" + WiFi.localIP().toString() + "/scan?ticket=QR_test");
-}
-
-// ============================================================
-//  LOOP
-// ============================================================
-void loop() {
-  // Wi-Fi auto-reconnect
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("[WIFI] Disconnected — reconnecting...");
-    WiFi.disconnect();
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    unsigned long start = millis();
-    while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) {
-      delay(500);
-      Serial.print(".");
-    }
-    if (WiFi.status() == WL_CONNECTED) {
-      Serial.println("\n[WIFI] Reconnected! IP: " + WiFi.localIP().toString());
-    } else {
-      Serial.println("\n[WIFI] Reconnect failed — retrying next loop");
-    }
-    return;
-  }
-
-  espServer.handleClient();
-
-  // Non-blocking re-lock after UNLOCK_DURATION_MS
-  if (unlocking && (millis() - unlockStart >= UNLOCK_DURATION_MS)) {
-    digitalWrite(SOLENOID_PIN, RELAY_LOCK);
-    unlocking = false;
-    Serial.println("[RELAY] LOCKED");
-  }
-
-  // Heartbeat every 60 s
-  static unsigned long lastHeartbeat = 0;
-  if (millis() - lastHeartbeat > 60000) {
-    sendHeartbeat();
-    lastHeartbeat = millis();
-  }
+  Serial.println("[READY] Waiting for hardware or web scans...");
 }
