@@ -68,7 +68,7 @@ const HelpCenter = () => {
             <a href="mailto:support@securefy.com" className="contact-btn primary">
               <FaEnvelope /> Email Support
             </a>
-            <a href="tel:+1234567890" className="px-8 py-4 bg-slate-800/80 hover:bg-slate-700 border border-slate-600 text-slate-200 rounded-xl font-bold transition-all duration-300 shadow-sm flex items-center gap-3 hover:-translate-y-1 w-full sm:w-auto justify-center">
+            <a href="tel:+94763188347" className="contact-btn secondary">
               <FaPhoneAlt /> +94763188347
             </a>
           </div>
