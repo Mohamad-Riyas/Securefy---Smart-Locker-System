@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "../firebase";
 import "./Availability.css";
@@ -25,6 +26,16 @@ export default function AvailabilityUnique() {
   const [viewMode, setViewMode] = useState("grid"); // grid or list
   const [showFilters, setShowFilters] = useState(false);
   const [selectedLocker, setSelectedLocker] = useState(null);
+  const navigate = useNavigate();
+  const handleBookLocker = () => {
+    navigate('/book-locker', {
+      state: {
+        selectedLockerId: selectedLocker?.lockerId,
+        size: selectedLocker?.size,
+        location: selectedLocker?.location
+      }
+    });
+  };
 
   // Real-time listener
   useEffect(() => {
@@ -357,7 +368,7 @@ export default function AvailabilityUnique() {
       {/* Locker Details Modal */}
       {selectedLocker && (
         <div className="modal-overlay" onClick={() => setSelectedLocker(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" style={{ backgroundColor: '#ffffff' }} onClick={(e) => e.stopPropagation()}>
             <button 
               className="modal-close"
               onClick={() => setSelectedLocker(null)}
@@ -396,7 +407,7 @@ export default function AvailabilityUnique() {
 
             <div className="modal-footer">
               {selectedLocker.status === 'available' ? (
-                <button className="primary-btn-modal">
+                <button className="primary-btn-modal" onClick={handleBookLocker}>
                   <FaCheckCircle /> Book This Locker
                 </button>
               ) : (
