@@ -8,7 +8,7 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-HardwareSerial Serial2(2);
+HardwareSerial Serial1(1);
 
 // ─────────────────────────────────────────────
 //  MULTI LOCKER CONFIG
@@ -219,7 +219,7 @@ void sendHeartbeat() {
 // ============================================================
 void setup() {
   Serial.begin(115200);
-  Serial2.begin(9600);
+  Serial1.begin(9600, SERIAL_8N1, 20, 21);
 
   delay(1000);
 
@@ -266,8 +266,8 @@ void loop() {
   }
 
   // Hardware Scanner
-  if (Serial2.available()) {
-    String scanned = Serial2.readString();
+  if (Serial1.available()) {
+    String scanned = Serial1.readString();
     scanned.trim();
 
     if (scanned.length() > 0) {
