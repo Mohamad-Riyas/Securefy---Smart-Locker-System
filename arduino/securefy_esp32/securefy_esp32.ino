@@ -205,7 +205,7 @@ void sendHeartbeat() {
   http.addHeader("x-device-key", DEVICE_KEY);
 
   JsonDocument doc;
-  doc["device"] = "multi-locker";
+  doc["lockerId"] = "multi-locker";
 
   String body;
   serializeJson(doc, body);
