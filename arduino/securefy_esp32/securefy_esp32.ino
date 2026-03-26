@@ -130,7 +130,7 @@ void sendHeartbeat() {
 // ============================================================
 void setup() {
   Serial.begin(115200);
-  Serial1.begin(9600, SERIAL_8N1, 20, 21);
+  Serial1.begin(9600, SERIAL_8N1, 7, 8);
 
   delay(1000);
   Serial.println("\n=== SECUREFY MULTI LOCKER ===");
