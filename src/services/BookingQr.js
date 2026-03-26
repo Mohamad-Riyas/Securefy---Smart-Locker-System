@@ -13,7 +13,7 @@ export async function bookLocker({ lockerId, startDate, endDate }) {
   const bookingsCol = collection(db, "bookings");
 
   const now = new Date();
-  const qrExpiresAt = new Date(now.getTime() + 15 * 60 * 1000);
+  const qrExpiresAt = new Date(startDate.getTime() + 15 * 60 * 1000);
 
   return await runTransaction(db, async (tx) => {
     const lockerSnap = await tx.get(lockerRef);
