@@ -13,6 +13,8 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
+HardwareSerial Serial2(2);
+
 // ─────────────────────────────────────────────
 //  ① CHANGE THESE THREE SETTINGS PER LOCKER
 //  L001 → SOLENOID_PIN 4
@@ -42,7 +44,7 @@ const char* DEVICE_KEY = "securefy-device-key-2024";
 
 // ─────────────────────────────────────────────
 //  RELAY LOGIC
- Most relay modules: LOW = ON (unlocked), HIGH = OFF (locked)
+//Most relay modules: LOW = ON (unlocked), HIGH = OFF (locked)
 //  Swap if yours is reversed
 // ─────────────────────────────────────────────
 const int RELAY_UNLOCK = HIGH; // Try switching from LOW to HIGH
