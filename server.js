@@ -133,7 +133,8 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
     // ── Check if booking hasn't started yet ──
     const now = new Date();
     const startTime = bookingData.startTime.toDate();
-    if (now < startTime) {
+    const fiveMinsBefore = new Date(startTime.getTime() - 5 * 60 * 1000);
+    if (now < fiveMinsBefore) {
        console.log(`[DENIED] Booking hasn't started. Starts at: ${startTime}`);
        return res.json({ allow: false, reason: "Booking hasn't started yet" });
     }
