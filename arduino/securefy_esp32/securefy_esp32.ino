@@ -4,11 +4,11 @@
 // ============================================================
 
 #include <WiFi.h>
-#include <WebServer.h>
+#include <WiFiServer.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-HardwareSerial Serial1(1);
+
 
 // ─────────────────────────────────────────────
 //  MULTI LOCKER CONFIG
@@ -49,7 +49,7 @@ const int UNLOCK_DURATION_MS = 5000;
 const int HTTP_TIMEOUT_MS    = 8000;
 
 // ─────────────────────────────────────────────
-WebServer espServer(80);
+WiFiServer espServer(80);
 
 // State per locker
 bool unlocking[LOCKER_COUNT] = {false, false, false};
@@ -242,14 +242,6 @@ void setup() {
 
   Serial.println("\n[WIFI] Connected!");
   Serial.println(WiFi.localIP());
-
-  // Routes
-  espServer.on("/", handleRoot);
-  espServer.on("/scan", handleScan);
-  espServer.on("/scan", HTTP_OPTIONS, handleOptions);
-
-  espServer.begin();
-
   Serial.println("[READY] System started");
 }
 
@@ -281,8 +273,6 @@ void loop() {
     }
   }
 
-  // Web server
-  espServer.handleClient();
 
   // Relock logic
   for (int i = 0; i < LOCKER_COUNT; i++) {
