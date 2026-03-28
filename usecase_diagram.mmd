@@ -1,0 +1,40 @@
+usecaseDiagram
+actor Guest
+actor User
+actor Admin
+actor LockerHardware as "Locker Hardware"
+
+rectangle "Securefy System" {
+  (Register / Login)
+  (Browse Lockers)
+  (View Availability)
+  (Book Locker)
+  (Generate QR Code)
+  (View My QR Code)
+  (Cancel Booking)
+  (Manage Lockers)
+  (Manage Users)
+  (Manage Bookings)
+  (View Dashboard)
+  (Validate QR at Locker)
+}
+
+Guest --> (Browse Lockers)
+Guest --> (View Availability)
+Guest --> (Register / Login)
+
+User --> (Browse Lockers)
+User --> (View Availability)
+User --> (Book Locker)
+User --> (Generate QR Code)
+User --> (View My QR Code)
+User --> (Cancel Booking)
+
+Admin --> (Manage Lockers)
+Admin --> (Manage Users)
+Admin --> (Manage Bookings)
+Admin --> (View Dashboard)
+
+"Locker Hardware" --> (Validate QR at Locker)
+(Validate QR at Locker) .> (Generate QR Code) : verifies
+(Validate QR at Locker) .> (Book Locker) : confirms
