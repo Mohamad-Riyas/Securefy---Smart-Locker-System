@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaLock, FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
+import { FaLock, FaInstagram, FaFacebookF, FaLinkedinIn, FaYoutube } from "react-icons/fa";
 
 const Footer = () => {
     return (
@@ -60,9 +60,10 @@ const Footer = () => {
                         </p>
                         <div className="flex gap-4 pt-4">
                             {[
-                                { Icon: FaFacebookF, href: "https://facebook.com", color: "hover:bg-blue-600/20 hover:text-blue-500 hover:border-blue-500/50" },
-                                { Icon: FaInstagram, href: "https://instagram.com", color: "hover:bg-pink-600/20 hover:text-pink-500 hover:border-pink-500/50" },
-                                { Icon: FaLinkedinIn, href: "https://linkedin.com", color: "hover:bg-blue-700/20 hover:text-blue-400 hover:border-blue-400/50" }
+                                { Icon: FaFacebookF, href: "https://web.facebook.com/profile.php?id=61579525304865&sk=about_details", color: "hover:bg-blue-600/20 hover:text-blue-500 hover:border-blue-500/50" },
+                                { Icon: FaInstagram, href: "https://www.instagram.com/securefy.official?igsh=NXczYTRhOXNjdDUy", color: "hover:bg-pink-600/20 hover:text-pink-500 hover:border-pink-500/50" },
+                                { Icon: FaLinkedinIn, href: "https://www.linkedin.com/company/112375079/admin/dashboard/", color: "hover:bg-blue-700/20 hover:text-blue-400 hover:border-blue-400/50" },
+                                { Icon: FaYoutube, href: "https://youtube.com/@securefy_smart-locker-system?si=OMWShbW-Q7Ay-hX4", color: "hover:bg-red-600/20 hover:text-red-500 hover:border-red-500/50" }
                             ].map((social, idx) => (
                                 <a
                                     key={idx}
