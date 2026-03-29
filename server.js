@@ -126,7 +126,7 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
     let isStartQr = true;
 
     if (bookingSnap.empty) {
-      // Try to match endQrToken instead
+      // ── Checking for End Time QR ──
       let endQuery = db.collection("bookings")
                        .where("endQrToken", "==", token)
                        .where("status", "==", "active");
@@ -135,6 +135,8 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
         endQuery = endQuery.where("lockerId", "==", lockerId);
       }
       
+      bookingSnap = await endQuery.get();
+      
       if (bookingSnap.empty) {
         console.log(`[DENIED] No active booking found for token: ${token}`);
         return res.json({ allow: false, reason: "Invalid QR or no matching booking" });
@@ -142,10 +144,10 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
 
       const bookingDoc = bookingSnap.docs[0];
       if (!bookingDoc.data().qrUsed) {
+        console.log(`[DENIED] Check-out attempted before Check-in for token: ${token}`);
         return res.json({ allow: false, reason: "Please Check-In with your first QR code first" });
       }
 
-      bookingSnap = [bookingDoc];
       isStartQr = false;
     }
 
