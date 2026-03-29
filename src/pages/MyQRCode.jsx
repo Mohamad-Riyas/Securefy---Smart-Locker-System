@@ -314,41 +314,6 @@ export default function MyQRCode() {
                     >
                       <FaDownload /> Download
                     </button>
-                    {(withinBookingPeriod && booking.qrUsed && !booking.endQrUsed) && (
-                      <button
-                        onClick={async () => {
-                          toast.info("Sending unlock command to cloud...");
-                          try {
-                            const res = await fetch(`http://localhost:5000/cloudUnlock`, {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ token: booking.endQrToken })
-                            });
-                            const data = await res.json();
-                            if (data.success) toast.success("Locker Unlocked Successfully!");
-                            else toast.error("Command failed: " + (data.reason || "Unauthorized"));
-                          } catch (e) {
-                            toast.error("Cloud server disconnected. Please run node server.js");
-                          }
-                        }}
-                        className="unlock-btn-period"
-                        style={{
-                          background: 'linear-gradient(135deg, #FF416C, #FF4B2B)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '10px',
-                          fontWeight: 'bold',
-                          cursor: 'pointer',
-                          padding: '14px 20px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '10px'
-                        }}
-                      >
-                        <FaLock /> Unlock Now
-                      </button>
-                    )}
                     <button
                       onClick={() => cancelBooking(booking.id, booking.lockerId)}
                       className="cancel-btn"
