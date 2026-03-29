@@ -217,7 +217,14 @@ export default function BookLocker() {
                 <input
                   type="datetime-local"
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={(e) => {
+                    const newStart = e.target.value;
+                    setStartDate(newStart);
+                    // Automatically set end time to 1 hour later
+                    const date = new Date(newStart);
+                    date.setHours(date.getHours() + 1);
+                    setEndDate(date.toISOString().slice(0, 16));
+                  }}
                   min={new Date().toISOString().slice(0, 16)}
                 />
               </div>

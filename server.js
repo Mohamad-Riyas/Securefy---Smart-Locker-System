@@ -315,6 +315,18 @@ app.post("/cloudUnlock", async (req, res) => {
   }
 });
 
+// Administrative Emergency Override
+app.post("/cloudUnlockAll", (req, res) => {
+  console.log("🚨 [EMERGENCY] Global unlock signal received!");
+  
+  // Send unlock request for all lockers in the system
+  LOCKER_IDS.forEach(lockerId => {
+    remoteUnlockQueue.push({ lockerId, token: "EMERGENCY", processed: false });
+  });
+
+  res.json({ success: true });
+});
+
 // ESP32 polls this to see if any buttons were pressed on the dashboard
 app.get("/getUnlockRequests", requireDeviceKey, (req, res) => {
   const requests = remoteUnlockQueue.filter(r => !r.processed);
