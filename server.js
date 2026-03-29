@@ -10,12 +10,12 @@
 //  Run with:  node server.js
 // ============================================================
 
-import express       from "express";
-import { readFile }  from "fs/promises";
+import express from "express";
+import { readFile } from "fs/promises";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
-import nodemailer    from "nodemailer";
-import dotenv        from "dotenv";
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 dotenv.config();
 
 // ─────────────────────────────────────────────
@@ -115,8 +115,8 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
 
   try {
     let query = db.collection("bookings")
-                  .where("qrToken", "==", token)
-                  .where("status", "==", "active");
+      .where("qrToken", "==", token)
+      .where("status", "==", "active");
 
     if (lockerId && lockerId !== "ALL") {
       query = query.where("lockerId", "==", lockerId);
@@ -126,17 +126,15 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
     let isStartQr = true;
 
     if (bookingSnap.empty) {
-      // ── Checking for End Time QR ──
+      // Try to match endQrToken instead
       let endQuery = db.collection("bookings")
-                       .where("endQrToken", "==", token)
-                       .where("status", "==", "active");
-      
+        .where("endQrToken", "==", token)
+        .where("status", "==", "active");
+
       if (lockerId && lockerId !== "ALL") {
         endQuery = endQuery.where("lockerId", "==", lockerId);
       }
-      
-      bookingSnap = await endQuery.get();
-      
+
       if (bookingSnap.empty) {
         console.log(`[DENIED] No active booking found for token: ${token}`);
         return res.json({ allow: false, reason: "Invalid QR or no matching booking" });
@@ -144,14 +142,14 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
 
       const bookingDoc = bookingSnap.docs[0];
       if (!bookingDoc.data().qrUsed) {
-        console.log(`[DENIED] Check-out attempted before Check-in for token: ${token}`);
         return res.json({ allow: false, reason: "Please Check-In with your first QR code first" });
       }
 
+      bookingSnap = [bookingDoc];
       isStartQr = false;
     }
 
-    const bookingDoc  = bookingSnap.docs[0];
+    const bookingDoc = bookingSnap.docs[0];
     const bookingData = bookingDoc.data();
     const targetLockerId = bookingData.lockerId;
 
@@ -167,21 +165,21 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
       const startTime = bookingData.startTime.toDate();
       const fiveMinsBefore = new Date(startTime.getTime() - 5 * 60 * 1000);
       if (now < fiveMinsBefore) {
-         console.log(`[DENIED] Booking hasn't started. Starts at: ${startTime}`);
-         return res.json({ allow: false, reason: "Booking hasn't started yet" });
+        console.log(`[DENIED] Booking hasn't started. Starts at: ${startTime}`);
+        return res.json({ allow: false, reason: "Booking hasn't started yet" });
       }
 
       // Mark as used and update locker status
       const batch = db.batch();
 
       batch.update(bookingDoc.ref, {
-        qrUsed:   true,
+        qrUsed: true,
         qrUsedAt: Timestamp.fromDate(now),
       });
 
       const lockerRef = db.collection("lockers").doc(targetLockerId);
       batch.update(lockerRef, {
-        status:      "occupied",
+        status: "occupied",
         lastUpdated: Timestamp.fromDate(now),
       });
 
@@ -189,7 +187,7 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
 
       console.log(`[GRANTED] Locker ${targetLockerId} opened for starting booking ${bookingDoc.id}`);
       return res.json({ allow: true, lockerId: targetLockerId });
-      
+
     } else {
       // ── Checking for End time QR (Unlocking & ending booking) ──
       if (bookingData.endQrUsed === true) {
@@ -200,16 +198,16 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
       const batch = db.batch();
 
       batch.update(bookingDoc.ref, {
-        endQrUsed:   true,
+        endQrUsed: true,
         endQrUsedAt: Timestamp.fromDate(now),
-        status:      "completed",
+        status: "completed",
       });
 
       const lockerRef = db.collection("lockers").doc(targetLockerId);
       batch.update(lockerRef, {
-        status:           "available",
+        status: "available",
         currentBookingId: null,
-        lastUpdated:      Timestamp.fromDate(now),
+        lastUpdated: Timestamp.fromDate(now),
       });
 
       await batch.commit();
@@ -266,7 +264,7 @@ app.post("/sendEmail", async (req, res) => {
       console.warn("Email credentials not configured but /sendEmail was called. Sending success to client anyway.");
       return res.json({ success: true, message: "Email mocked." });
     }
-    
+
     await transporter.sendMail(mailOptions);
     console.log(`[EMAIL] End time QR code sent to ${userEmail}`);
     return res.json({ success: true });
@@ -281,14 +279,14 @@ let remoteUnlockQueue = [];
 
 app.post("/cloudUnlock", async (req, res) => {
   const { token } = req.body;
-  
+
   if (!token) return res.status(400).json({ success: false, reason: "Missing token" });
 
   try {
     const bookingSnap = await db.collection("bookings")
-                                .where("endQrToken", "==", token)
-                                .where("status", "==", "active")
-                                .get();
+      .where("endQrToken", "==", token)
+      .where("status", "==", "active")
+      .get();
 
     if (bookingSnap.empty) {
       return res.status(404).json({ success: false, reason: "Inactive or invalid booking" });
@@ -323,7 +321,7 @@ app.post("/cloudUnlock", async (req, res) => {
 // Administrative Emergency Override
 app.post("/cloudUnlockAll", (req, res) => {
   console.log("🚨 [EMERGENCY] Global unlock signal received!");
-  
+
   // Send unlock request for all lockers in the system
   LOCKER_IDS.forEach(lockerId => {
     remoteUnlockQueue.push({ lockerId, token: "EMERGENCY", processed: false });

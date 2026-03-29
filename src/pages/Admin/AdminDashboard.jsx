@@ -31,36 +31,16 @@ const AdminDashboard = () => {
     const handleEmergencyUnlock = async () => {
         if (window.confirm("⚠️ EMERGENCY OVERRIDE ⚠️\n\nAre you sure you want to UNLOCK ALL LOCKERS?\nThis will clear all current bookings and open all doors.")) {
             try {
-                // 1. Log the intent to the backend for ESP32 polling
-                const res = await fetch("https://securefy-smart-locker-system.onrender.com/cloudUnlockAll", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" }
-                });
-                
-                if (!res.ok) throw new Error("Could not send command to cloud");
-
-                // 2. Clean up database
                 const batch = writeBatch(db);
                 const querySnapshot = await getDocs(collection(db, "lockers"));
-                querySnapshot.forEach((doc) => {
-                    batch.update(doc.ref, { 
-                        status: "available",
-                        currentBookingId: null 
-                    });
-                });
 
-                // Cancel all active bookings
-                const bookingSnap = await getDocs(collection(db, "bookings"));
-                bookingSnap.forEach((doc) => {
-                    const data = doc.data();
-                    if(data.status === "active") {
-                        batch.update(doc.ref, { status: "cancelled" });
-                    }
+                querySnapshot.forEach((doc) => {
+                    batch.update(doc.ref, { status: "available" });
                 });
 
                 await batch.commit();
                 toast.success("🚨 EMERGENCY UNLOCK SUCCESSFUL: All lockers opened");
-                setTimeout(() => window.location.reload(), 2000);
+                setTimeout(() => window.location.reload(), 1500);
             } catch (error) {
                 console.error("Error upgrading lockers:", error);
                 toast.error("Emergency unlock failed: " + error.message);

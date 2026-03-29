@@ -84,20 +84,6 @@ export default function BookLocker() {
         endDate: end
       });
 
-      try {
-        await fetch("http://localhost:5000/sendEmail", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userEmail: result.userEmail,
-            endQrToken: result.endQrToken,
-            lockerId: selectedLocker.lockerId
-          })
-        });
-      } catch (emailErr) {
-        console.error("Failed to call /sendEmail", emailErr);
-      }
-
       toast.success("🎉 Booking successful! Check My QR Code page");
       setTimeout(() => navigate("/my-qr-code"), 1500);
     } catch (err) {
@@ -217,14 +203,7 @@ export default function BookLocker() {
                 <input
                   type="datetime-local"
                   value={startDate}
-                  onChange={(e) => {
-                    const newStart = e.target.value;
-                    setStartDate(newStart);
-                    // Automatically set end time to 1 hour later
-                    const date = new Date(newStart);
-                    date.setHours(date.getHours() + 1);
-                    setEndDate(date.toISOString().slice(0, 16));
-                  }}
+                  onChange={(e) => setStartDate(e.target.value)}
                   min={new Date().toISOString().slice(0, 16)}
                 />
               </div>
