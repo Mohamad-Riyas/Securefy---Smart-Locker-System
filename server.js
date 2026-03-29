@@ -132,13 +132,18 @@ app.post("/verifyQr", requireDeviceKey, async (req, res) => {
         endQuery = endQuery.where("lockerId", "==", lockerId);
       }
       
-      bookingSnap = await endQuery.get();
-      isStartQr = false;
-      
       if (bookingSnap.empty) {
         console.log(`[DENIED] No active booking found for token: ${token}`);
         return res.json({ allow: false, reason: "Invalid QR or no matching booking" });
       }
+
+      const bookingDoc = bookingSnap.docs[0];
+      if (!bookingDoc.data().qrUsed) {
+        return res.json({ allow: false, reason: "Please Check-In with your first QR code first" });
+      }
+
+      bookingSnap = [bookingDoc];
+      isStartQr = false;
     }
 
     const bookingDoc  = bookingSnap.docs[0];
@@ -285,17 +290,14 @@ app.post("/cloudUnlock", async (req, res) => {
     }
 
     const bookingDoc = bookingSnap.docs[0];
-    const lockerId = bookingDoc.data().lockerId;
+    const data = bookingDoc.data();
+    const lockerId = data.lockerId;
 
     // Add to queue for ESP32 to discover
     remoteUnlockQueue.push({ lockerId, token, processed: false });
 
-    // Mark as used in database immediately
-    await bookingDoc.ref.update({
-      endQrUsed: true,
-      endQrUsedAt: Timestamp.fromDate(new Date()),
-      status: "completed"
-    });
+    console.log(`[CLOUD UNLOCK] Remote command added to queue for Locker ${lockerId}`);
+    return res.json({ success: true });
 
     // Reset locker
     await db.collection("lockers").doc(lockerId).update({
