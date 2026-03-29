@@ -105,7 +105,7 @@ const AdminUsers = () => {
                     <input
                         type="text"
                         className="w-full bg-slate-900/60 backdrop-blur-md border border-slate-700 focus:border-indigo-500 text-slate-200 pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-lg transition-all"
-                        placeholder="Search Identity or Matrix ID..."
+                        placeholder="Search name or email..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -120,7 +120,7 @@ const AdminUsers = () => {
                         <thead>
                             <tr className="bg-slate-900/40 text-left text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
                                 <th className="px-6 py-5 font-semibold">User Identity</th>
-                                <th className="px-6 py-5 font-semibold">Matrix ID (Email)</th>
+                                <th className="px-6 py-5 font-semibold">Email</th>
                                 <th className="px-6 py-5 font-semibold">Clearance</th>
                                 <th className="px-6 py-5 font-semibold">Node Status</th>
                                 <th className="px-6 py-5 font-semibold text-right">Overrides</th>

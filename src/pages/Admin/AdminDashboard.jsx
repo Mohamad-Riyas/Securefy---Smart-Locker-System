@@ -299,7 +299,7 @@ const AdminDashboard = () => {
 
                 {/* 6. LOCKER STATUS GRID */}
                 <motion.div variants={itemVariants} className="col-span-1 lg:col-span-3 bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 shadow-2xl">
-                    <div className="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-6">Locker Matrix View</div>
+                    <div className="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-6">Locker grid</div>
                     
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-3">
                         {lockerGrid.map((locker, i) => (
