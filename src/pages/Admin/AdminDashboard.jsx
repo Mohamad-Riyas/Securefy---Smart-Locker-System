@@ -171,7 +171,7 @@ const AdminDashboard = () => {
 
             <div className="flex justify-between items-end mb-8 relative z-10">
                 <div>
-                    <h1 className="text-3xl font-extrabold text-slate-100 tracking-tight">System Matrix</h1>
+                    <h1 className="text-3xl font-extrabold text-slate-100 tracking-tight">Insights</h1>
                     <p className="text-slate-400 mt-1">Real-time telemetry and overview.</p>
                 </div>
                 <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-medium shadow-[0_0_15px_rgba(16,185,129,0.2)]">
