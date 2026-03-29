@@ -26,6 +26,9 @@ dotenv.config();
 //  Must EXACTLY match DEVICE_KEY in your .ino file.
 const DEVICE_KEY = "securefy-device-key-2024";
 
+// Define the lockers available in the physical hardware
+const LOCKER_IDS = ["L001", "L002", "L003"];
+
 //  Port this server listens on
 const PORT = process.env.PORT || 5000;
 
