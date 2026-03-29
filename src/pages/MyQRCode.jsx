@@ -225,7 +225,7 @@ export default function MyQRCode() {
         {bookings.map((booking) => {
           const expired = isExpired(booking.qrExpiresAt);
           const expiringSoon = isExpiringSoon(booking.qrExpiresAt);
-          
+
           const withinBookingPeriod = (() => {
             const start = booking.startTime?.toDate();
             const end = booking.endTime?.toDate();
@@ -233,7 +233,7 @@ export default function MyQRCode() {
             const now = new Date();
             return now >= start && now <= end;
           })();
-          
+
           const hasStarted = (() => {
             const start = booking.startTime?.toDate();
             if (!start) return false;
@@ -325,9 +325,9 @@ export default function MyQRCode() {
                               body: JSON.stringify({ token: booking.endQrToken })
                             });
                             const data = await res.json();
-                            if(data.success) toast.success("Locker Unlocked Successfully!");
+                            if (data.success) toast.success("Locker Unlocked Successfully!");
                             else toast.error("Command failed: " + (data.reason || "Unauthorized"));
-                          } catch(e) {
+                          } catch (e) {
                             toast.error("Cloud server disconnected. Please run node server.js");
                           }
                         }}
@@ -389,14 +389,14 @@ export default function MyQRCode() {
                         </div>
                       ) : (!withinBookingPeriod || !booking.qrUsed) ? (
                         <div className="qr-overlay" style={{ background: 'rgba(102, 126, 234, 0.9)' }}>
-                           <FaClock size={40} />
-                           <p style={{ textAlign: 'center', margin: '0 15px' }}>
-                             {!booking.qrUsed
-                               ? "Please check-in first"
-                               : hasStarted 
-                                 ? "Booking Period Ended" 
-                                 : `Available at ${formatDateTime(booking.startTime)}`}
-                           </p>
+                          <FaClock size={40} />
+                          <p style={{ textAlign: 'center', margin: '0 15px' }}>
+                            {!booking.qrUsed
+                              ? "Please check-in first"
+                              : hasStarted
+                                ? "Booking Period Ended"
+                                : `Available at ${formatDateTime(booking.startTime)}`}
+                          </p>
                         </div>
                       ) : null}
                       <QRCodeSVG
