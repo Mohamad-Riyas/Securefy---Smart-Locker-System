@@ -12,8 +12,7 @@ import {
   FaTimesCircle,
   FaHistory,
   FaCheckCircle,
-  FaExclamationTriangle,
-  FaLock
+  FaExclamationTriangle
 } from "react-icons/fa";
 import "./MyQRCode.css";
 
@@ -226,20 +225,6 @@ export default function MyQRCode() {
           const expired = isExpired(booking.qrExpiresAt);
           const expiringSoon = isExpiringSoon(booking.qrExpiresAt);
 
-          const withinBookingPeriod = (() => {
-            const start = booking.startTime?.toDate();
-            const end = booking.endTime?.toDate();
-            if (!start || !end) return false;
-            const now = new Date();
-            return now >= start && now <= end;
-          })();
-
-          const hasStarted = (() => {
-            const start = booking.startTime?.toDate();
-            if (!start) return false;
-            return new Date() >= start;
-          })();
-
           return (
             <div key={booking.id} className={`booking-card ${expired ? 'expired' : ''}`}>
               <div className="booking-main">
@@ -323,61 +308,27 @@ export default function MyQRCode() {
                   </div>
                 </div>
 
-                <div className="qr-display-section" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <div className={`qr-wrapper ${expired || booking.qrUsed ? 'expired' : ''}`}>
-                    {(expired || booking.qrUsed) && (
+                <div className="qr-display-section">
+                  <div className={`qr-wrapper ${expired ? 'expired' : ''}`}>
+                    {expired && (
                       <div className="qr-overlay">
-                        {booking.qrUsed ? <FaCheckCircle size={40} /> : <FaExclamationTriangle size={40} />}
-                        <p>{booking.qrUsed ? 'Used' : 'Expired'}</p>
+                        <FaExclamationTriangle size={40} />
+                        <p>Expired</p>
                       </div>
                     )}
                     <QRCodeSVG
                       id={`qr-${booking.qrToken}`}
                       value={booking.qrToken}
-                      size={180}
+                      size={220}
                       level="H"
                       includeMargin={true}
-                      className={expired || booking.qrUsed ? 'qr-expired' : ''}
+                      className={expired ? 'qr-expired' : ''}
                     />
                     <div className="qr-instructions">
-                      <p className="qr-label">📱 1. Check-In QR</p>
-                      <p className="qr-sublabel">Scan to start booking</p>
+                      <p className="qr-label">📱 Scan at locker</p>
+                      <p className="qr-sublabel">Show this code at the locker terminal</p>
                     </div>
                   </div>
-
-                  {booking.endQrToken && (
-                    <div className={`qr-wrapper ${booking.endQrUsed ? 'expired' : (!withinBookingPeriod || !booking.qrUsed ? 'expired' : '')}`}>
-                      {booking.endQrUsed ? (
-                        <div className="qr-overlay">
-                          <FaCheckCircle size={40} />
-                          <p>Used</p>
-                        </div>
-                      ) : (!withinBookingPeriod || !booking.qrUsed) ? (
-                        <div className="qr-overlay" style={{ background: 'rgba(102, 126, 234, 0.9)' }}>
-                          <FaClock size={40} />
-                          <p style={{ textAlign: 'center', margin: '0 15px' }}>
-                            {!booking.qrUsed
-                              ? "Please check-in first"
-                              : hasStarted
-                                ? "Booking Period Ended"
-                                : `Available at ${formatDateTime(booking.startTime)}`}
-                          </p>
-                        </div>
-                      ) : null}
-                      <QRCodeSVG
-                        id={`qr-${booking.endQrToken}`}
-                        value={booking.endQrToken}
-                        size={180}
-                        level="H"
-                        includeMargin={true}
-                        className={booking.endQrUsed || !withinBookingPeriod || !booking.qrUsed ? 'qr-expired' : ''}
-                      />
-                      <div className="qr-instructions">
-                        <p className="qr-label">🔓 2. Check-Out QR</p>
-                        <p className="qr-sublabel">Scan to unlock & end</p>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

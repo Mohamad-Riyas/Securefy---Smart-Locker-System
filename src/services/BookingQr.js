@@ -14,9 +14,6 @@ export async function bookLocker({ lockerId, startDate, endDate }) {
 
   const now = new Date();
   const qrExpiresAt = new Date(startDate.getTime() + 15 * 60 * 1000);
-  
-  const startToken = makeQrToken();
-  const endToken = makeQrToken();
 
   return await runTransaction(db, async (tx) => {
     const lockerSnap = await tx.get(lockerRef);
@@ -34,11 +31,9 @@ export async function bookLocker({ lockerId, startDate, endDate }) {
       startTime: Timestamp.fromDate(startDate),
       endTime: Timestamp.fromDate(endDate),
       status: "active",
-      qrToken: startToken,
-      endQrToken: endToken,
+      qrToken: makeQrToken(),
       qrExpiresAt: Timestamp.fromDate(qrExpiresAt),
       qrUsed: false,
-      endQrUsed: false,
       createdAt: serverTimestamp(),
     });
 
@@ -48,6 +43,6 @@ export async function bookLocker({ lockerId, startDate, endDate }) {
       lastUpdated: serverTimestamp(),
     });
 
-    return { bookingId: bookingRef.id, qrToken: startToken, endQrToken: endToken, userEmail: user.email };
+    return { bookingId: bookingRef.id };
   });
 }
